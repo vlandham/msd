@@ -76,6 +76,8 @@ def get_all_tags(tracks, tag_counts):
     track_meta['play_count'] = plays
     tags = get_tags(track, tag_conn)
     for tag in tags:
+      if len(tag) == 0:
+        continue
       if tag in tags_data:
         tags_data[tag]['tracks'].append(track_meta)
       else:
@@ -99,14 +101,14 @@ def get_all_tags(tracks, tag_counts):
     tag['tag_stats'] = tag_stats
 
     # now limit the size of the tracks array
-    max_track_num = 15
+    max_track_num = 35
     tag['tracks'] = tag['tracks'][0:max_track_num]
 
 
   # now limit the number of tags we stor.
   # right now, just use constant
 
-  sorted_tags = sorted_tags[0:30]
+  sorted_tags = sorted_tags[0:50]
   return sorted_tags
 
 
@@ -139,14 +141,15 @@ user_data_filename = 'data/top_users_data_filtered_valid_with_tracks.txt'
 users_filename = 'data/top_users_short.txt'
 
 tag_counts = load_tag_counts(tag_counts_filename)
-user_data = load_user_data(user_data_filename)
+all_user_data = load_user_data(user_data_filename)
 users = load_users(users_filename)
 
-print str(len(user_data))
+
+print str(len(all_user_data))
 
 for idx, user in enumerate(users):
   print(user + "\n")
-  tracks = user_data[user]
+  tracks = all_user_data[user]
 
   user_data = get_all_data(user, idx, tracks, tag_counts)
 
