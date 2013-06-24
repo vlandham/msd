@@ -1,5 +1,4 @@
 data/*
 out/*
-*.txt
 .RData
 .Rhistory

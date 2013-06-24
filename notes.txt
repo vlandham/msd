@@ -1,0 +1,127 @@
+steps
+
+* download raw data
+* download related data
+* download example scripts
+* look at demo python code
+
+initial analysis:
+
+check_train_triplets.sh - uses unix commands to double check numbers to ensure file contains expected number of data points
+
+filter_valid.py - removes songs found to have incorrect mappings to tracks. invalid mapping comes from: sid_mismatches.txt
+
+song_to_track.py - convert song id to its first matching track id to make matching to other data easier. matchup data comes from: taste_profile_song_to_tracks.txt
+
+analyze_basic.py - pulls out count data from train_triplets.txt
+analyze_basic.R - graphs count data as histograms and other views
+
+tags
+
+add_tags.py - takes <track_id\tcount> input. gets all tags for track. outputs data/tags_songs_counts.txt
+
+filter_tags.py -takes tags_songs_counts.txt and filters out tags that appear less then <minimum> amount of times.
+
+count_tags.py - takes data/tags_songs_counts.txt and provides counts and ratios for each tag
+
+
+----
+----
+
+
+Your API Key: ODF7R3CSWAICT8V7K 
+Your Consumer Key: aedbb5803b3d8319f9bee8ed17842efa 
+Your Shared Secret: JJFhNwSJRQ2ZkN+5sbHlzg
+
+
+For the pre-audition, we'd like to ask you to create a visualization solution around the Million Song Dataset. In particular, we'd like you to focus on the Taste Profile Subset.
+
+Taste Profile Subset
+
+User |  Song  |  play count
+
+* represents which users play which songs
+* similar songs - user usually likes related songs
+* popular songs - the more users play the song, the more popular it is
+* loved songs ? - songs played many times by many users are really loved ?
+* super users - users that listen to a lot of songs
+* repeaters - users that listen to the same song over and over
+
+Although the dataset is about users and songs, it's not too distant from our world of customers and products.
+
+ customers like products
+ users like songs
+
+ customers buy products
+ customers listen to/buy songs
+
+
+ So, as you think about the story you'd like to tell with this data, we'd encourage you to think about the parallels between music and fashion.
+
+ Music <=> Fashion
+
+* both are opinionated -/- polarizing - people hate/love a song / style
+* many varietes / categories - both have many genres
+* songs/fashion go in and out of 'fashion' -  are popular for a time
+
+
+Also, bonus points if you feel inclined to mix this dataset with other data sets such as lyrics<http://labrosa.ee.columbia.edu/millionsong/musixmatch>, tags<http://labrosa.ee.columbia.edu/millionsong/lastfm>, and similar songs, or any other external data for that matter. Feel free to use any tool(s) of your choice. 
+
+It's also up to you if you want to come at this from the angle of a single user experience or from an aggregated view of all users / songs.
+
+single user experience
+* find songs that i like
+* music explorer by user
+
+aggregated view of all users
+* how many songs to each user listen to?
+
+aggregated view of all songs
+* what songs are most popular - played by the most users?
+* what songs are played the most times?
+
+
+------
+------
+
+Mapping from song to tracks: most MSD data is indexed by track, but the Taste Profile data is based on songs. There is a difference in The Echo Nest world, but you can ignore it at first. To go from song IDs to track IDs, use the file 'taste_profile_song_to_tracks.txt'. CAREFUL! Some songs map to more than one track, and a few songs don't have a corresponding track in the MSD. If you're curious about matching issues, read this blog post.
+
+------
+------
+
+SONG MISMATCHES
+
+list:
+sid_mismatches.txt
+
+In practice, it means that if you're using songs (e.g. to link to Rdio, or in the Taste Profile subset) or artists (e.g. similar artists, artist tags), you should probably ignore tracks in that list.
+
+
+
+-----
+-----
+
+
+ideas:
+* suggest songs based on tags for user
+** pull out top 100 most 'popular' songs (listened to by most users || listened to most times)
+** allow user to select one or more genre's 
+** present songs matching these genres
+*** could be force layout with multiple loci
+
+
+* what decade are you?
+** put in songs / genres
+** pull out time periods when song was popular
+** (probably won't be able to get that - no time stamp on when song was played?)
+** (also, played time wouldn't indicate actually when it was popular (no play time < 1998))
+
+* music like network
+** network of who likes what
+** nodes are users & songs
+** connection between user when they listen to song
+** OR
+** nodes are just songs
+** connections between similar songs based off of user likes
+
+
