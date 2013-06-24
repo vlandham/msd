@@ -125,7 +125,7 @@ def output_data(user_id, user_data, output_dir):
   out.write(json.dumps(user_data))
   out.close()
 
-output_dir = "data/users"
+output_dir = "vis/data/users"
 os.system("mkdir -p " + output_dir)
 
 tag_database = "data/lastfm_tags.db"
