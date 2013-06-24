@@ -7,33 +7,33 @@ library(scales)
 
 outdir <- "out"
 
-song_counts <- read.table("song_counts.txt", header = FALSE, sep = "\t")
+song_counts <- read.table("data/song_counts.txt", header = FALSE, sep = "\t")
 colnames(song_counts) <- c("song", "count")
 
-song_plays <- read.table("song_plays.txt", header = FALSE, sep = "\t")
+song_plays <- read.table("data/song_plays.txt", header = FALSE, sep = "\t")
 colnames(song_plays) <- c("song", "plays")
 
-user_songs <- read.table("user_songs.txt", header = FALSE, sep = "\t")
+user_songs <- read.table("data/user_songs.txt", header = FALSE, sep = "\t")
 colnames(user_songs) <- c("user", "song_count")
 
-user_plays <- read.table("user_plays.txt", header = FALSE, sep = "\t")
+user_plays <- read.table("data/user_plays.txt", header = FALSE, sep = "\t")
 colnames(user_plays) <- c("user", "play_count")
 
 user_song_plays <- merge(user_songs, user_plays, by = "user")
 song_counts_plays <- merge(song_counts, song_plays, by = "song")
 
-write.table(user_song_plays, "user_song_plays.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
-write.table(song_counts_plays, "song_counts_plays.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
+write.table(user_song_plays, "data/user_song_plays.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
+write.table(song_counts_plays, "data/song_counts_plays.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
 
 
 sorted_song_counts <- song_counts[with(song_counts, order(-count)),]
-write.table(sorted_song_counts, "sorted_song_counts.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
+write.table(sorted_song_counts, "data/sorted_song_counts.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
 
 sorted_user_songs <- user_songs[with(user_songs, order(-song_count)),]
-write.table(sorted_user_songs, "sorted_user_songs.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
+write.table(sorted_user_songs, "data/sorted_user_songs.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
 
 top_users <- sorted_user_songs[1:2000,]
-write.table(top_users, "top_users.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
+write.table(top_users, "data/top_users.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
 
 p <- ggplot(top_users, aes(x = song_count))
 p + geom_histogram()

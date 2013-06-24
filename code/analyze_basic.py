@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-filename = "./data/train_triplets.txt"
+#filename = "./data/train_triplets.txt"
+
+import sys 
+
+filename = sys.argv[1]
 
 f = open(filename, 'r')
 song_to_count = dict()
@@ -33,28 +37,28 @@ for line in f:
 
 f.close()
 
-out = open('song_counts.txt', 'w')
+out = open('data/song_counts.txt', 'w')
 
 for key, value in song_to_count.iteritems():
   out.write("\t".join(map(str, [key, value])) + "\n")
 
 out.close()
 
-out = open('song_plays.txt', 'w')
+out = open('data/song_plays.txt', 'w')
 
 for key, value in song_to_plays.iteritems():
   out.write("\t".join(map(str, [key, value])) + "\n")
 
 out.close()
 
-out = open('user_songs.txt', 'w')
+out = open('data/user_songs.txt', 'w')
 
 for key, value in user_to_songs.iteritems():
   out.write("\t".join(map(str, [key, value])) + "\n")
 
 out.close()
 
-out = open('user_plays.txt', 'w')
+out = open('data/user_plays.txt', 'w')
 
 for key, value in user_to_plays.iteritems():
   out.write("\t".join(map(str, [key, value])) + "\n")
