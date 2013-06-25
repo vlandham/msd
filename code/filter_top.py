@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-top_filename = "./top_users.txt"
+top_filename = "./data/top_users.txt"
 filename = "./data/train_triplets.txt"
 
 output_filename = "./data/top_users_data.txt"
