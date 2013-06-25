@@ -112,8 +112,9 @@ TagCircle = () ->
   nodes = []
   links = []
   margin = {top: 20, right: 20, bottom: 30, left: 20}
-  maxTrackRadius = 40
+  maxTrackRadius = 35
   rScaleTrack = d3.scale.sqrt().range([3, maxTrackRadius]).domain([1, 200])
+  # rScaleTrack = d3.scale.pow().exponent(0.5).domain([1, 200]).range([3, maxTrackRadius])
   #circleRadius = d3.scale.sqrt().range([3, 12]).domain(countExtent)
   color = d3.scale.category10()
 
@@ -122,11 +123,12 @@ TagCircle = () ->
   tag = null
   tagRadius = 60
 
-  charge = (node) -> -Math.pow(node.radius, 2.0) / 7
+  charge = (node) -> -Math.pow(node.radius, 2.0) / 8
 
   force = d3.layout.force()
     .size([width, height])
     .gravity(0)
+    .friction(0.9)
     .charge(charge)
 
   filterData = (rData) ->
@@ -156,7 +158,7 @@ TagCircle = () ->
       t.tracks.forEach (track) ->
         track_id = track.track_id
         if !nodes_map.has(track_id)
-          track_node = {'radius':rScaleTrack(track.play_count), 'id':track_id, 'title':track.title, 'tags':[tag_id], 'artist':track.artist_name}
+          track_node = {'radius':rScaleTrack(+track.play_count), 'id':track_id, 'title':track.title, 'tags':[tag_id], 'artist':track.artist_name}
           nodes_map.set(track_id, track_node)
         else
           track_node = nodes_map.get(track_id)
@@ -215,17 +217,37 @@ TagCircle = () ->
       update()
 
   moveToTag = (alpha) ->
-    k = alpha * 0.1
+    k = alpha * 0.08
     (d) ->
       d.tags.forEach (tag) ->
         centerNode = groupCenters(tag)
         d.x += (centerNode.x - d.x) * k
         d.y += (centerNode.y - d.y) * k
   
+  collide = (node) ->
+    r = node.radius + 16
+    nx1 = node.x - r
+    nx2 = node.x + r
+    ny1 = node.y - r
+    ny2 = node.y + r
+    (quad, x1, y1, x2, y2) ->
+      if quad.point && (quad.point != node)
+        x = node.x - quad.point.x
+        y = node.y - quad.point.y
+        l = Math.sqrt(x * x + y * y)
+        r = node.radius + quad.point.radius
+        if (l < r)
+          l = (l - r) / l * .5
+          node.x -= x *= l
+          node.y -= y *= l
+          quad.point.x += x
+          quad.point.y += y
+      return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1
+
   tick = (e) ->
-    # q = d3.geom.quadtree(nodes)
-    # nodes.forEach (n) ->
-    #   q.visit(collide(n))
+    q = d3.geom.quadtree(nodes)
+    nodes.forEach (n) ->
+      q.visit(collide(n))
     node.each(moveToTag(e.alpha))
 
     node
@@ -705,8 +727,8 @@ $ ->
 
   updateActive = (new_id) ->
     user_id = new_id
-    console.log(user_id)
     d3.selectAll('svg').remove()
+    top_plot = TagCircle()
     queue()
       .defer(d3.csv, "data/users/all.csv")
       .defer(d3.json, "data/users/#{user_id}.json")
