@@ -7,11 +7,14 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>vis</title>
+  <title>Track Tag Love</title>
   <meta name="description" content="">
   <meta name="author" content="">
 
   <meta name="viewport" content="width=device-width,initial-scale=1">
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,300|Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+  
 
   <!-- CSS concatenated and minified via ant build script-->
   <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -25,7 +28,8 @@
 <body>
 
   <div id="container" class="container">
-    <h1>Track Love for <span id="title_name"></span></h1>
+    <div id="change_nav"><a id="change_nav_link" href="#">change users</a></div>
+    <h1>Track Tag <span class="love">Love</span> for <span id="title_name"></span></h1>
     <div id="main" role="main">
       <div class="row">
         <div class="span12">
@@ -53,6 +57,7 @@
   <script defer src="js/script.js"></script>
   <script src="js/libs/coffee-script.js"></script>
   <script src="js/jquery.tipsy.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script src="js/libs/d3.v3.js"></script>
   <script src="js/libs/queue.min.js"></script>
   <script type="text/coffeescript" src="coffee/vis.coffee"></script>

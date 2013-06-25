@@ -1,6 +1,289 @@
 
 root = exports ? this
 
+RadialPlacement = () ->
+  # stores the key -> location values
+  values = d3.map()
+  # how much to separate each location by
+  increment = 20
+  # how large to make the layout
+  radius = 200
+  # where the center of the layout should be
+  center = {"x":0, "y":0}
+  # what angle to start at
+  start = -120
+  current = start
+
+  # Given an center point, angle, and radius length,
+  # return a radial position for that angle
+  radialLocation = (center, angle, radius) ->
+    x = (center.x + radius * Math.cos(angle * Math.PI / 180))
+    y = (center.y + radius * Math.sin(angle * Math.PI / 180))
+    {"x":x,"y":y}
+
+  # Main entry point for RadialPlacement
+  # Returns location for a particular key,
+  # creating a new location if necessary.
+  placement = (key) ->
+    value = values.get(key)
+    if !values.has(key)
+      value = place(key)
+    value
+
+  # Gets a new location for input key
+  place = (key) ->
+    value = radialLocation(center, current, radius)
+    values.set(key,value)
+    current += increment
+    value
+
+   # Given a set of keys, perform some 
+  # magic to create a two ringed radial layout.
+  # Expects radius, increment, and center to be set.
+  # If there are a small number of keys, just make
+  # one circle.
+  setKeys = (keys) ->
+    # start with an empty values
+    values = d3.map()
+  
+    # number of keys to go in first circle
+    firstCircleCount = 360 / increment
+
+    # if we don't have enough keys, modify increment
+    # so that they all fit in one circle
+    if keys.length < firstCircleCount
+      increment = 360 / keys.length
+
+    # set locations for inner circle
+    firstCircleKeys = keys.slice(0,firstCircleCount)
+    firstCircleKeys.forEach (k) -> place(k)
+
+    # set locations for outer circle
+    secondCircleKeys = keys.slice(firstCircleCount)
+
+    # setup outer circle
+    radius = radius + radius / 1.8
+    increment = 360 / secondCircleKeys.length
+
+    secondCircleKeys.forEach (k) -> place(k)
+
+  placement.keys = (_) ->
+    if !arguments.length
+      return d3.keys(values)
+    setKeys(_)
+    placement
+
+  placement.center = (_) ->
+    if !arguments.length
+      return center
+    center = _
+    placement
+
+  placement.radius = (_) ->
+    if !arguments.length
+      return radius
+    radius = _
+    placement
+
+  placement.start = (_) ->
+    if !arguments.length
+      return start
+    start = _
+    current = start
+    placement
+
+  placement.increment = (_) ->
+    if !arguments.length
+      return increment
+    increment = _
+    placement
+
+  return placement
+
+
+TagCircle = () ->
+  width = 900
+  height = 600
+  data = []
+  vis = null
+  link = null
+  node = null
+  nodeData = null
+  nodes = []
+  links = []
+  margin = {top: 20, right: 20, bottom: 30, left: 20}
+  maxTrackRadius = 40
+  rScaleTrack = d3.scale.sqrt().range([3, maxTrackRadius]).domain([1, 200])
+  #circleRadius = d3.scale.sqrt().range([3, 12]).domain(countExtent)
+  color = d3.scale.category10()
+
+  groupCenters = null
+  tags = null
+  tag = null
+  tagRadius = 60
+
+  charge = (node) -> -Math.pow(node.radius, 2.0) / 7
+
+  force = d3.layout.force()
+    .size([width, height])
+    .gravity(0)
+    .charge(charge)
+
+  filterData = (rData) ->
+    total_tags = 0
+    rData.tags = rData.tags.filter (tag) ->
+      
+      keep = total_tags < 10
+      total_tags += 1
+      keep
+    rData
+
+  updateCenters = (rData) ->
+    tags = []
+    rData.tags.forEach (t) ->
+      tags.push(t.id)
+
+    groupCenters = RadialPlacement().center({"x":width / 2, "y":height / 2 })
+      .radius(250).increment(28).keys(tags)
+
+  tagData = (rData) ->
+    nodes_map = d3.map()
+    nodes = []
+    rData.tags.forEach (t) ->
+      tag_id = t.id
+      # tag_node = {'radius':5,'id':tag_id, 'name':t.id, 'is_tag':true}
+      # nodes_map.set(tag_id, tag_node)
+      t.tracks.forEach (track) ->
+        track_id = track.track_id
+        if !nodes_map.has(track_id)
+          track_node = {'radius':rScaleTrack(track.play_count), 'id':track_id, 'title':track.title, 'tags':[tag_id], 'artist':track.artist_name}
+          nodes_map.set(track_id, track_node)
+        else
+          track_node = nodes_map.get(track_id)
+          track_node.tags.push(tag_id)
+          nodes_map.set(track_id, track_node)
+
+    nodes = nodes_map.values()
+    {'nodes':nodes}
+
+  chart = (selection) ->
+    selection.each (rawData) ->
+      data = filterData(rawData)
+      updateCenters(data)
+      nodeData = tagData(data)
+      console.log(nodeData)
+
+      svg = d3.select(this).selectAll("svg").data([data])
+      gEnter = svg.enter().append("svg").append("g")
+      
+      svg.attr("width", width + margin.left + margin.right )
+      svg.attr("height", height + margin.top + margin.bottom )
+
+      g = svg.select("g")
+        .attr("transform", "translate(#{margin.left},#{margin.top})")
+
+      vis = g.append("g").attr("id", "vis_nodes")
+
+      t = vis.append("g").attr("id", "vis_tags")
+      tag = t.selectAll(".tag")
+        .data(tags).enter()
+        .append("circle")
+        .attr("class", "tag")
+        .attr("cx", (d) -> groupCenters(d).x)
+        .attr("cy", (d) -> groupCenters(d).y)
+        .attr("r", tagRadius)
+        .style("fill", (d) -> color(d))
+        .style("opacity", 0.5)
+      t.selectAll(".tag_title")
+        .data(tags).enter()
+        .append("text")
+        .attr("class", "tag_title")
+        .attr("x", (d) -> groupCenters(d).x)
+        .attr("y", (d) -> groupCenters(d).y)
+        .attr("dx", (d) -> if groupCenters(d).x > (width / 2) then tagRadius + 10 else -(tagRadius + 10))
+        .attr("text-anchor", (d) -> if groupCenters(d).x > (width / 2) then "start" else "end")
+        .attr "dy", (d) -> 
+          if groupCenters(d).y > height - (height / 3)
+            40
+          else if groupCenters(d).y < (height / 3)
+            -20
+          else
+            0
+
+        .text((d) -> d)
+
+      update()
+
+  moveToTag = (alpha) ->
+    k = alpha * 0.1
+    (d) ->
+      d.tags.forEach (tag) ->
+        centerNode = groupCenters(tag)
+        d.x += (centerNode.x - d.x) * k
+        d.y += (centerNode.y - d.y) * k
+  
+  tick = (e) ->
+    # q = d3.geom.quadtree(nodes)
+    # nodes.forEach (n) ->
+    #   q.visit(collide(n))
+    node.each(moveToTag(e.alpha))
+
+    node
+      .attr("transform", (d) -> "translate(#{d.x},#{d.y})")
+
+  hideTags = (d) ->
+    vis.selectAll(".tag_link").remove()
+    tag.style("opacity", 0.5)
+
+  showTags = (d) ->
+    vis.selectAll(".tag_link")
+      .data(d.tags).enter()
+      .insert("line", "#vis_tags")
+      # .append("line")
+      .attr("class", "tag_link")
+      .attr("x1", (t) -> d.x)
+      .attr("y1", (t) -> d.y)
+      .attr("x2", (t) -> groupCenters(t).x)
+      .attr("y2", (t) -> groupCenters(t).y)
+
+    tag.filter((t) -> d.tags.indexOf(t) != -1)
+      .style("opacity", 1.0)
+
+
+  update = () ->
+    force
+      .nodes(nodeData.nodes, (d) -> d.id)
+      .on("tick", tick)
+      .start()
+
+    node = vis.selectAll(".node")
+      .data(force.nodes(), (d) -> d.id)
+      # .style("fill", "steelblue")
+
+    node.enter().append("g")
+      .attr("class", "node")
+      .attr("transform", (d) -> "translate(#{d.x},#{d.y})")
+      .append("circle")
+      # .attr("cx", (d) -> d.x)
+      # .attr("cy", (d) -> d.y)
+      .attr("r", (d) -> d.radius)
+      .on("mouseover", showTags)
+      .on("mouseout", hideTags)
+      .on('click', (d) -> console.log(d))
+      .call(force.drag)
+
+    $('svg .node').tipsy({
+      gravity:'w'
+      html:true
+      title: () ->
+        d = this.__data__
+        "<strong>#{d.title}</strong> <i>by</i> #{d.artist}"
+    })
+
+    node.exit().remove()
+
+  return chart
+
 ForceTags = () ->
   width = 900
   height = 600
@@ -368,11 +651,23 @@ root.plotData = (selector, data, plot) ->
 setup_page = (data) ->
   d3.select("#title_name").html(data.name)
 
+
+
 $ ->
 
-  user_id = 1
 
-  top_plot = ForceTags()
+  changeUser = (e) ->
+    location.replace("#" + encodeURIComponent('2'))
+    d3.event.preventDefault()
+
+  d3.select("#change_nav_link")
+    .on("click", changeUser)
+
+  user_id = decodeURIComponent(location.hash.substring(1)).trim()
+  if !user_id
+    user_id = 4
+
+  top_plot = TagCircle()
   dot_plot = DotPlot()
 
   display = (error, data) ->
@@ -384,3 +679,17 @@ $ ->
     .defer(d3.json, "data/users/#{user_id}.json")
     .await(display)
 
+  updateActive = (new_id) ->
+    user_id = new_id
+    console.log(user_id)
+    d3.selectAll('svg').remove()
+    queue()
+      .defer(d3.json, "data/users/#{user_id}.json")
+      .await(display)
+
+  hashchange = () ->
+    id = decodeURIComponent(location.hash.substring(1)).trim()
+    updateActive(id)
+
+  d3.select(window)
+    .on("hashchange", hashchange)

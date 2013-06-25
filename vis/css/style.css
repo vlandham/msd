@@ -1,15 +1,58 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+}
 
+#title_name {
+  color: #777;
+}
+
+.love {
+  color: #e377c2;
+}
+
+#change_nav {
+  float:right;
+  height: 30px;
+  padding-top: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #999;
+  /* border-radius: 15px; */
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+#change_nav a {
+  color: white;
+}
 
 .node circle {
   cursor: pointer;
-  stroke: #000;
+  stroke: #fff;
   stroke-width: .5px;
+  fill: #888;
 }
 
 .link {
   fill: none;
   stroke: #9ecae1;
   stroke-width: 1.5px;
+}
+
+.tag_link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 2.5px;
+}
+
+.tag {
+  stroke: #000;
+  stroke-width: 0px;
+}
+
+.tag_title {
+  font-weight: 700; 
+  font-size: 20px;
 }
 
 .connector {
@@ -23,6 +66,9 @@
 .dot {
   cursor: pointer;
   fill: steelblue;
+  /* stroke: #fff; */
+  /* stroke-width: .5px; */
+  /* fill: #888; */
 }
 
 .artist {
