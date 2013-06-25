@@ -200,7 +200,7 @@ DotPlot = () ->
   height = 600
   data = []
   dots = null
-  margin = {top: 20, right: 200, bottom: 0, left: 10}
+  margin = {top: 20, right: 250, bottom: 0, left: 10}
   xScale = d3.scale.linear().range([0,width])
   # yScale = d3.scale.linear().domain([0,10]).range([0,height])
   yScale = d3.scale.linear().domain([0,10]).range([0,height])
@@ -222,7 +222,7 @@ DotPlot = () ->
     tracks = tracks.slice(0,15)
 
     play_extent = d3.extent(tracks, (d) -> d.play_count)
-    xScale.domain(play_extent)
+    xScale.domain([0, play_extent[1]])
     yScale.domain([0,tracks.length])
 
     tracks
@@ -370,7 +370,7 @@ setup_page = (data) ->
 
 $ ->
 
-  user_id = 6
+  user_id = 1
 
   top_plot = ForceTags()
   dot_plot = DotPlot()
