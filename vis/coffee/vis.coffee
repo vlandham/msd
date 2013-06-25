@@ -648,20 +648,42 @@ root.plotData = (selector, data, plot) ->
     .call(plot)
 
 
-setup_page = (data) ->
+root.all = {}
+
+setupPage = (data) ->
   d3.select("#title_name").html(data.name)
 
+openSearch = (e) ->
+  $('#search_user').show('slide').select()
+  $('#change_nav_link').hide()
+  d3.event.preventDefault()
 
+hideSearch = () ->
+  $('#search_user').hide()
+  $('#change_nav_link').show()
+
+changeUser = (user) ->
+  console.log(user)
+  hideSearch()
+  id = root.all.get(user)
+  if id
+    location.replace("#" + encodeURIComponent(id))
+  # d3.event.preventDefault()
+  return user
+
+setupSearch = (all) ->
+  root.all = d3.map()
+  all.forEach (a) ->
+    root.all.set(a.name, a.index)
+
+  users = root.all.keys()
+  console.log(users)
+  $('#search_user').typeahead({source:users, updater:changeUser})
 
 $ ->
 
-
-  changeUser = (e) ->
-    location.replace("#" + encodeURIComponent('2'))
-    d3.event.preventDefault()
-
   d3.select("#change_nav_link")
-    .on("click", changeUser)
+    .on("click", openSearch)
 
   user_id = decodeURIComponent(location.hash.substring(1)).trim()
   if !user_id
@@ -670,12 +692,14 @@ $ ->
   top_plot = TagCircle()
   dot_plot = DotPlot()
 
-  display = (error, data) ->
-    setup_page(data)
+  display = (error, all, data) ->
+    setupPage(data)
+    setupSearch(all)
     plotData("#top_vis", data, top_plot)
     plotData("#dot_vis", data, dot_plot)
 
   queue()
+    .defer(d3.csv, "data/users/all.csv")
     .defer(d3.json, "data/users/#{user_id}.json")
     .await(display)
 
@@ -684,6 +708,7 @@ $ ->
     console.log(user_id)
     d3.selectAll('svg').remove()
     queue()
+      .defer(d3.csv, "data/users/all.csv")
       .defer(d3.json, "data/users/#{user_id}.json")
       .await(display)
 

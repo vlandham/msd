@@ -10,6 +10,15 @@ body {
   color: #e377c2;
 }
 
+#search_user {
+  display: none;
+  background-color: #fff;
+  border:none;
+  border-bottom: 1px solid #000;
+  margin-top: -5px;
+  width: 140px;
+}
+
 #change_nav {
   float:right;
   height: 30px;
@@ -81,3 +90,4 @@ line.baseline {
   stroke-width: 3.5px;
   stroke-linecap: round;
 }
+
