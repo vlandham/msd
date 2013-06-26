@@ -1,6 +1,9 @@
 
 root = exports ? this
 
+# verbose helper to make circle layout easier.
+# could be simplified...
+# from my tutorial: http://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualization/
 RadialPlacement = () ->
   # stores the key -> location values
   values = d3.map()
@@ -100,7 +103,8 @@ RadialPlacement = () ->
 
   return placement
 
-
+# tags in a circle!
+# top vis of songs and tags and how they are connected.
 TagCircle = () ->
   width = 900
   height = 600
@@ -306,6 +310,8 @@ TagCircle = () ->
 
   return chart
 
+# original idea of network/tree of tags. hide/expand functionality
+# didn't use as too many songs have too many tags
 ForceTags = () ->
   width = 900
   height = 600
@@ -582,7 +588,7 @@ DotPlot = () ->
       .attr("y", (d,i) -> yScale(i))
       .attr("dx", 10)
       .attr("dy", 4)
-      .text((d) -> d.title)
+      .text((d) -> truncate(d.title, 30))
     $('svg .dot').tipsy({
       gravity:'s'
       html:true
@@ -591,78 +597,14 @@ DotPlot = () ->
         "#{d.play_count}"
     })
 
-  return chart
-
-Plot = () ->
-  width = 900
-  height = 600
-  data = []
-  points = null
-  margin = {top: 20, right: 20, bottom: 20, left: 20}
-  xScale = d3.scale.linear().domain([0,10]).range([0,width])
-  yScale = d3.scale.linear().domain([0,10]).range([0,height])
-  xValue = (d) -> parseFloat(d.x)
-  yValue = (d) -> parseFloat(d.y)
-
-  chart = (selection) ->
-    selection.each (rawData) ->
-
-      data = rawData
-
-      svg = d3.select(this).selectAll("svg").data([data])
-      gEnter = svg.enter().append("svg").append("g")
-      
-      svg.attr("width", width + margin.left + margin.right )
-      svg.attr("height", height + margin.top + margin.bottom )
-
-      g = svg.select("g")
-        .attr("transform", "translate(#{margin.left},#{margin.top})")
-
-      points = g.append("g").attr("id", "vis_points")
-      update()
-
-  update = () ->
-    points.selectAll(".point")
-      .data(data).enter()
-      .append("circle")
-      .attr("cx", (d) -> xScale(xValue(d)))
-      .attr("cy", (d) -> yScale(yValue(d)))
-      .attr("r", 8)
-      .attr("fill", "steelblue")
-
   chart.height = (_) ->
     if !arguments.length
       return height
     height = _
     chart
 
-  chart.width = (_) ->
-    if !arguments.length
-      return width
-    width = _
-    chart
-
-  chart.margin = (_) ->
-    if !arguments.length
-      return margin
-    margin = _
-    chart
-
-  chart.x = (_) ->
-    if !arguments.length
-      return xValue
-    xValue = _
-    chart
-
-  chart.y = (_) ->
-    if !arguments.length
-      return yValue
-    yValue = _
-    chart
-
   return chart
 
-#root.Plot = Plot
 
 root.plotData = (selector, data, plot) ->
   d3.select(selector)
