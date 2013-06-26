@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pandoc -s index.textile -o index.html
+pandoc -c style.css -s index.textile -o index.html
