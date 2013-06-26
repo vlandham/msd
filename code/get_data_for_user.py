@@ -104,6 +104,7 @@ def get_all_tags(tracks, tag_counts):
 
   # sort tags by number of tracks they have
   sorted_tags = sorted(all_tags, key = lambda t: len(t['tracks']), reverse = True)
+  tag_count = len(sorted_tags)
   # add some stats for each tag group
   for idx, tag in enumerate(sorted_tags):
     # sort tracks by play count
@@ -125,14 +126,14 @@ def get_all_tags(tracks, tag_counts):
   # right now, just use constant
 
   sorted_tags = sorted_tags[0:50]
-  return sorted_tags, top_tracks
+  return sorted_tags, top_tracks, tag_count
 
 
 def get_all_data(user, user_id, tracks, tag_counts):
   tag_data = dict()
   user_name = name.find_name()
-  tags, top_tracks = get_all_tags(tracks, tag_counts)
-  user_data = {'name': user_name, 'id':user_id, 'tags':tags, 'top_tracks':top_tracks, 'total_tracks':len(tracks)}
+  tags, top_tracks, tag_count = get_all_tags(tracks, tag_counts)
+  user_data = {'name': user_name, 'id':user_id, 'tags':tags, 'top_tracks':top_tracks, 'total_tracks':len(tracks), 'total_tags':tag_count}
   return user_data
 
 def output_data(user_id, user_data, output_dir):

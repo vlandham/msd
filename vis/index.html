@@ -33,10 +33,16 @@
       <input class="typeahead" id="search_user" type="text" autocomplete="off">
     </div>
     <h1>Track Tag <span class="love">Love</span> for <span id="title_name"></span></h1>
+    <h2>You've listened to <span id="track_count"></span> songs with <span id="tag_count"></span> tags</h2>
+    <h3>Here are some of your favorites</h3>
     <div id="main" role="main">
       <div class="row">
         <div class="span12">
           <div id="top_vis"></div>
+          <h4>About</h4>
+          <p id='top_vis_explain'>The most used tags for the songs you've listened to are shown above. Each <span id="gray_bubble">gray bubble</span> <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="12px" height="12px">
+  <circle cx="6" cy="6" r="6" class="inline_node"/></svg> is a song you've listened to. Songs you listen to more are larger. Each song is pulled towards its tags. Songs with only one tag are right on top of their tag's circle. Songs with many tags are pulled toward the center. 
+          </p>
         </div> <!--! .span -->
       </div> <!--! .row -->
       <div class="row">

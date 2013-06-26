@@ -674,6 +674,8 @@ root.all = {}
 
 setupPage = (data) ->
   d3.select("#title_name").html(data.name)
+  d3.select("#track_count").html(addCommas(data.total_tracks))
+  d3.select("#tag_count").html(addCommas(data.total_tags))
 
 openSearch = (e) ->
   $('#search_user').show('slide').select()

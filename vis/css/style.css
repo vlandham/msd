@@ -6,6 +6,14 @@ body {
   color: #777;
 }
 
+#track_count {
+  color: #777;
+}
+
+#tag_count {
+  color: #777;
+}
+
 .love {
   color: #e377c2;
 }
@@ -37,6 +45,12 @@ body {
 
 .node circle {
   cursor: pointer;
+  stroke: #fff;
+  stroke-width: .5px;
+  fill: #888;
+}
+
+.inline_node {
   stroke: #fff;
   stroke-width: .5px;
   fill: #888;
