@@ -2,6 +2,7 @@ setwd('~/code/msd_vis')
 opar <- par(col = "#88C2F1", fg = "#8C9195", bg = "#ffffff", family = "sans")
 
 library('ggplot2')
+library("ggthemes")
 
 library(scales)
 
@@ -39,7 +40,7 @@ p <- ggplot(top_users, aes(x = song_count))
 p + geom_histogram()
             
 
-p <- ggplot(song_counts, aes(x = count)) + theme_bw() + xlab("Number of Listeners") + labs(title = "Number of Users Song is Listened To By")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- ggplot(song_counts, aes(x = count)) + theme_economist() + xlab("Number of Listeners") + labs(title = "Number of Users Song is Listened To By")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
 p <- p + geom_histogram()
 #p
 image.name <- paste("./", outdir, "/song_counts_all", ".png", sep = "")
@@ -49,12 +50,27 @@ print(p)
 par(temppar)
 dev.off()
 
+p <- ggplot(subset(song_counts, count < 1000), aes(x = count)) + theme_economist() + xlab("Number of Listeners") + labs(title = "Number of Users Song is Listened To By")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- p + geom_histogram(binwidth = 10)
+p
+
+p <- ggplot(subset(song_counts, count < 200 & count > 10), aes(x = count)) + theme_economist() + xlab("Number of Listeners") + labs(title = "Number of Users Song is Listened To By")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- p + geom_histogram(binwidth = 1)
+p
+
 #p <- ggplot(subset(song_counts, count < 500), aes(x = count)) + theme_bw() + xlab("Number of Listeners - ") + labs(title = "Song Counts")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
 #p + geom_histogram()
 
-p <- ggplot(song_counts, aes(x = log(count))) + theme_bw() + xlab("Number of Listeners (log scale)") + labs(title = "Log10 Number of Users Song is Listened To By")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
-p <- p + geom_histogram(binwidth = 0.4)
+song_counts$sample <- 1
+p <- ggplot(song_counts, aes(sample, log10(count))) + theme_economist()
+p <- p + geom_boxplot()
+p
+
+p <- ggplot(song_counts, aes(x = count)) + theme_economist() + xlab("Number of Listeners (log scale)") + labs(title = "Log10 Number of Users Song is Listened To By")  + scale_x_log10(labels = comma) + scale_y_continuous(labels = comma)
+p <- p + geom_histogram(binwidth = .1)
+p <- p + geom_histogram()
 #p
+
 
 image.name <- paste("./", outdir, "/song_counts_log", ".png", sep = "")
 png(image.name, height=800, width=1200)
@@ -77,9 +93,13 @@ dev.off()
 #p <- ggplot(song_plays, aes(x = log(plays)))
 #p + geom_histogram(binwidth = 0.3)
 
-p <- ggplot(user_songs, aes(x = song_count)) + theme_bw() + xlab("Songs Per User") + labs(title = "Number of Songs Users Listen To")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- ggplot(subset(user_songs, song_count < 300), aes(x = song_count)) + theme_economist() + xlab("Songs Per User") + labs(title = "Number of Songs Users Listen To")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
 p <- p + geom_histogram()
-#p
+p
+
+p <- ggplot(user_songs, aes(x = song_count)) + theme_economist() + xlab("Songs Per User") + labs(title = "Number of Songs Users Listen To")  + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- p + geom_histogram()
+p
 
 image.name <- paste("./", outdir, "/user_songs", ".png", sep = "")
 png(image.name, height=800, width=1200)
@@ -88,7 +108,7 @@ print(p)
 par(temppar)
 dev.off()
 
-p <- ggplot(user_songs, aes(x = log(song_count))) + theme_bw() + xlab("Songs Per User (log)") + labs(title = "Number of Songs Users Listen To - Log Scale") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- ggplot(user_songs, aes(x = song_count)) + theme_economist() + xlab("Songs Per User (log)") + labs(title = "Number of Songs Users Listen To - Log Scale") + scale_x_log10(labels = comma) + scale_y_continuous(labels = comma)
 p <- p + geom_histogram()
 
 image.name <- paste("./", outdir, "/user_songs_log", ".png", sep = "")
@@ -98,7 +118,7 @@ print(p)
 par(temppar)
 dev.off()
 
-p <- ggplot(user_song_plays, aes(song_count, play_count))+ theme_bw() + xlab("Number of Songs User Listens to") + ylab("Total User Play Count for All Songs")+ labs(title = "User Song Count vs Play Count") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- ggplot(user_song_plays, aes(song_count, play_count))+ theme_economist() + xlab("Number of Songs User Listens to") + ylab("Total User Play Count for All Songs")+ labs(title = "User Song Count vs Play Count") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
 p <- p + geom_point()
 
 image.name <- paste("./", outdir, "/user_songs_vs_plays", ".png", sep = "")
@@ -108,8 +128,8 @@ print(p)
 par(temppar)
 dev.off()
 
-p <- ggplot(song_counts_plays, aes(count, plays)) + theme_bw() + xlab("Number Users Listened to Song") + ylab("Total Number of Plays for Song")+ labs(title = "Song Users Count vs Number of Plays") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
-p <- p + geom_point()  + stat_smooth(method="lm", se=FALSE)
+p <- ggplot(song_counts_plays, aes(count, plays)) + theme_economist() + xlab("Number Users Listened to Song") + ylab("Total Number of Plays for Song")+ labs(title = "Song Users Count vs Number of Plays") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- p + geom_point()  #+ stat_smooth(method="lm", se=FALSE)
 #p
 image.name <- paste("./", outdir, "/song_count_vs_plays", ".png", sep = "")
 png(image.name, height=1000, width=1200)

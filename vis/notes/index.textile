@@ -1,0 +1,78 @@
+h1. Notes on Process
+
+h2. Initial processing
+
+* Filtered out songs with song / track mismatches
+** as recommended "by msd":http://labrosa.ee.columbia.edu/millionsong/blog/12-2-12-fixing-matching-errors
+* Converted song id to its first available track
+** easier to connect with other datasets
+
+h2. Initial Analysis
+
+General workflow: 
+
+* parse data with python. 
+* Output counts
+* Visualize with R
+
+Counts collected:
+
+* number of users listen to song - song_counts
+* number of times song has been played - song_plays
+* number of songs user has listened to - user_songs
+* number of play counts associated with user - user_plays
+
+Basic analysis:
+
+h3. song_counts - how many people have listened to a song
+
+* min: 1
+* median: 13
+* max: 90,444
+
+* average: 121
+
+<a href="img/song_counts_all.png"><img height=400 src="img/song_counts_all.png"/></a>
+
+*takeaway:* Most songs not played very often. Some have been heard by a lot of folks. Mean is skewed by the long tail.
+
+h3. user_songs - how many songs a user has listened to
+
+* min: 3
+* median: 26
+* max: 4,316
+
+* average: 45
+
+<a href="img/user_songs.png"><img height=400 src="img/user_songs.png"/></a>
+
+<a href="img/user_songs_log.png"><img height=400 src="img/user_songs_log.png"/></a>
+
+*takeaway:* most users have listened to 10 - 100 songs. Some *power users* have listened to many more.
+
+h3. user songs vs play counts
+
+what happens when we plot the number of songs a user has listened to vs the total number of play counts for that user?
+
+dot for every *user*. x-axis is number of songs user listened to. y-axis is total play count for user.
+
+<a href="img/user_songs_vs_plays.png"><img height=400 src="img/user_songs_vs_plays.png"/></a>
+
+*takeaway:* Most users listen to a few songs a few times. Some users listen to a ton of songs only a few times. Some listen to very few songs many times.
+
+h3. song play count vs audience
+
+what happens when we plot the number of users a song has been listened to by vs the total number of play counts for that song?
+
+dot for every *song*. x-axis is the number of users listened to the song. y-axis is the total play count for song.
+
+<a href="img/song_count_vs_plays.png"><img height=400 src="img/song_count_vs_plays.png"/></a>
+
+*takeaway:* two trends: songs that are heard by many people - but only a few times. These are popular songs that aren't worth listening to very much.
+
+songs that are heard by many people - and most listen to the song many times. These are songs that seem to have some staying power - users listen to them a bunch.
+
+could be just a few users listening to these songs a whole bunch? Possible - but unlikely given the previous graph that very few users have very high play counts.
+
+what makes these songs in the higher trend stand out from songs that have a similar number of users?
+

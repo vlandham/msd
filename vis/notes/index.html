@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="style.css">
+  
+</head>
+<body>
+<h1>Notes on Process</h1>
+<h2>Initial processing</h2>
+<ul>
+<li>Filtered out songs with song / track mismatches
+<ul>
+<li>as recommended <a href="http://labrosa.ee.columbia.edu/millionsong/blog/12-2-12-fixing-matching-errors">by msd</a></li>
+</ul></li>
+<li>Converted song id to its first available track
+<ul>
+<li>easier to connect with other datasets</li>
+</ul></li>
+</ul>
+<h2>Initial Analysis</h2>
+<p>General workflow:</p>
+<ul>
+<li>parse data with python. </li>
+<li>Output counts</li>
+<li>Visualize with R</li>
+</ul>
+<p>Counts collected:</p>
+<ul>
+<li>number of users listen to song - song_counts</li>
+<li>number of times song has been played - song_plays</li>
+<li>number of songs user has listened to - user_songs</li>
+<li>number of play counts associated with user - user_plays</li>
+</ul>
+<p>Basic analysis:</p>
+<h3>song_counts - how many people have listened to a song</h3>
+<ul>
+<li>min: 1</li>
+<li>median: 13</li>
+<li>max: 90,444</li>
+</ul>
+<ul>
+<li>average: 121</li>
+</ul>
+<p><a href="img/song_counts_all.png"><img height=400 src="img/song_counts_all.png"/></a></p>
+<p><strong>takeaway:</strong> Most songs not played very often. Some have been heard by a lot of folks. Mean is skewed by the long tail.</p>
+<h3>user_songs - how many songs a user has listened to</h3>
+<ul>
+<li>min: 3</li>
+<li>median: 26</li>
+<li>max: 4,316</li>
+</ul>
+<ul>
+<li>average: 45</li>
+</ul>
+<p><a href="img/user_songs.png"><img height=400 src="img/user_songs.png"/></a></p>
+<p><a href="img/user_songs_log.png"><img height=400 src="img/user_songs_log.png"/></a></p>
+<p><strong>takeaway:</strong> most users have listened to 10 - 100 songs. Some <strong>power users</strong> have listened to many more.</p>
+<h3>user songs vs play counts</h3>
+<p>what happens when we plot the number of songs a user has listened to vs the total number of play counts for that user?</p>
+<p>dot for every <strong>user</strong>. x-axis is number of songs user listened to. y-axis is total play count for user.</p>
+<p><a href="img/user_songs_vs_plays.png"><img height=400 src="img/user_songs_vs_plays.png"/></a></p>
+<p><strong>takeaway:</strong> Most users listen to a few songs a few times. Some users listen to a ton of songs only a few times. Some listen to very few songs many times.</p>
+<h3>song play count vs audience</h3>
+<p>what happens when we plot the number of users a song has been listened to by vs the total number of play counts for that song?</p>
+<p>dot for every <strong>song</strong>. x-axis is the number of users listened to the song. y-axis is the total play count for song.</p>
+<p><a href="img/song_count_vs_plays.png"><img height=400 src="img/song_count_vs_plays.png"/></a></p>
+<p><strong>takeaway:</strong> two trends: songs that are heard by many people - but only a few times. These are popular songs that aren’t worth listening to very much.</p>
+<p>songs that are heard by many people - and most listen to the song many times. These are songs that seem to have some staying power - users listen to them a bunch.</p>
+<p>could be just a few users listening to these songs a whole bunch? Possible - but unlikely given the previous graph that very few users have very high play counts.</p>
+<p>what makes these songs in the higher trend stand out from songs that have a similar number of users?</p>
+</body>
+</html>
