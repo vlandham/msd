@@ -130,7 +130,31 @@ dev.off()
 
 p <- ggplot(song_counts_plays, aes(count, plays)) + theme_economist() + xlab("Number Users Listened to Song") + ylab("Total Number of Plays for Song")+ labs(title = "Song Users Count vs Number of Plays") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
 p <- p + geom_point()  #+ stat_smooth(method="lm", se=FALSE)
-#p
+
+image.name <- paste("./", outdir, "/song_count_vs_plays", ".png", sep = "")
+png(image.name, height=1000, width=1200)
+temppar <- par(col = "#88C2F1", fg = "#8C9195", bg = "#ffffff", family = "sans", cex.axis = 1.3, las = 2, mar = c(12,6,1,1), mgp = c(4.5,1,0))
+print(p)
+par(temppar)
+dev.off()
+
+top_listens <- subset(song_counts_plays, count > 28000)
+p <- ggplot(top_listens, aes(count, plays)) + theme_economist() + xlab("Number Users Listened to Song") + ylab("Total Number of Plays for Song")+ labs(title = "Song Users Count vs Number of Plays") + scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma)
+p <- p + geom_point()  + stat_smooth(method="lm", se=FALSE)
+p
+
+plot(top_listens$count, top_listens$plays)
+z <- lm(plays ~ count, data = top_listens)
+
+abline(z)
+leaders <- top_listens[(z$residuals > 0) & top_listens$count > 30500,]
+
+top_listens$leader <- (z$residuals > 0) & top_listens$count > 30500
+points(leaders$count, leaders$plays, col = 'red')
+
+write.table(top_listens, "data/top_listens.txt", sep = "\t",  quote = FALSE, col.names = TRUE, row.names = FALSE)
+
+#abline(coef = coef(z))
 image.name <- paste("./", outdir, "/song_count_vs_plays", ".png", sep = "")
 png(image.name, height=1000, width=1200)
 temppar <- par(col = "#88C2F1", fg = "#8C9195", bg = "#ffffff", family = "sans", cex.axis = 1.3, las = 2, mar = c(12,6,1,1), mgp = c(4.5,1,0))
