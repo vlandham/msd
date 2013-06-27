@@ -719,8 +719,9 @@ CircleCircle = () ->
     colors = _
     chart
 
-  chart.toggle = () ->
-    display = if display == 'circle' then 'rank' else 'circle'
+  chart.toggle = (newDisplay) ->
+    # display = if display == 'circle' then 'rank' else 'circle'
+    display = newDisplay
     if display == 'rank'
       updateRanks()
     else
@@ -841,6 +842,11 @@ setupPage = (data) ->
   d3.select("#track_count").html(addCommas(data.total_tracks))
   d3.select("#tag_count").html(addCommas(data.total_tags))
 
+resetPage = () ->
+  d3.selectAll('.btn-group .btn')
+    .classed('active', (d,i) -> if i == 0 then true else false)
+
+
 openSearch = (e) ->
   $('#search_user').show('slide').select()
   $('#change_nav_link').hide()
@@ -899,6 +905,8 @@ $ ->
     user_id = new_id
     d3.selectAll('svg').remove()
     top_plot = TagCircle()
+    circle_plot = CircleCircle()
+    resetPage()
     queue()
       .defer(d3.csv, "data/users/all.csv")
       .defer(d3.json, "data/users/#{user_id}.json")
@@ -916,3 +924,12 @@ $ ->
       circle_plot.toggle()
       d3.event.preventDefault()
 
+  d3.select("#percent_toggle")
+    .on "click", () ->
+      circle_plot.toggle('circle')
+      d3.event.preventDefault()
+
+  d3.select("#rank_toggle")
+    .on "click", () ->
+      circle_plot.toggle('rank')
+      d3.event.preventDefault()

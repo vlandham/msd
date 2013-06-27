@@ -53,8 +53,11 @@
         </div>
         <div class="span6">
           <h2>Your Favorite Tags</h2>
-          <p>Your top tags compared to everyone else.</p>
-          <a href="#" id="circle_vis_toggle">switch</a>
+          <p id="favorite_desc">Your top tags compared to everyone else.</p>
+          <div class="btn-group" id='circle_selector' data-toggle="buttons-radio">
+            <a class='btn active' id='percent_toggle'>Percent</a>
+            <a class='btn' id='rank_toggle'>Rank</a>
+          </div>
           <div id="circle_vis"></div>
         </div>
       </div> <!--! .row -->
