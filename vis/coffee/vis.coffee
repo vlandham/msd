@@ -513,16 +513,18 @@ ForceTags = () ->
 
 CircleCircle = () ->
   width = 400
-  height = 800
+  height = 780
   data = []
   circles = null
   colors = null
 
   rankRight = 300
+  rankLeft = 100
 
   display = 'circle'
-  margin = {top: 60, right: 10, bottom: 0, left: 10}
+  margin = {top: 60, right: 10, bottom: 20, left: 50}
   xScale = d3.scale.linear().range([0,width])
+  duration = 1000
   # yScale = d3.scale.linear().domain([0,10]).range([0,height])
   # yScale = d3.scale.ordinal().rangeRoundBands([0, height], 1)
   xValue = (d) -> parseFloat(d.play_count)
@@ -533,13 +535,24 @@ CircleCircle = () ->
   maxRadiusOuter = maxRadiusInner * 2
   rScaleInner = d3.scale.sqrt().range([2, maxRadiusInner]).domain([0, 1])
   rScaleOuter = d3.scale.sqrt().range([2, maxRadiusOuter]).domain([0, 1])
+  yScaleRankAll = d3.scale.linear().range([0, height]).clamp(true)
+  yScaleRank = d3.scale.linear().range([0, height]).clamp(true)
 
   convertData = (rData) ->
     data = []
     rData.tags.forEach (d) ->
       tag = {name:d.id, stats:d.tag_stats, all_stats:d.all_stats, diff:roundNumber(d.tag_stats.count_ratio * 100, 0)  - roundNumber(d.all_stats.avg_count_per_user_tracks * 100, 0)}
       data.push(tag)
-    data.slice(0,maxTags)
+    data = data.slice(0,maxTags)
+    allRankExtent = d3.extent(data, (d) -> parseInt(d.all_stats.rank))
+    rankExtent = d3.extent(data, (d) -> parseInt(d.stats.rank))
+    max = Math.min(30, allRankExtent[1])
+    max =allRankExtent[1]
+    yScaleRankAll.domain([1, max])
+    # yScaleRank.domain([1, rankExtent[1]])
+    yScaleRank.domain([1, max])
+
+    data
 
   chart = (selection) ->
     selection.each (rawData) ->
@@ -559,12 +572,65 @@ CircleCircle = () ->
 
   updateRanks = () ->
     c = circles.selectAll('.out_circle')
-    c.transition().duration(2000)
+    c.transition().duration(duration)
       .attr('cx', rankRight)
-      .attr('r', 4)
+      .attr('cy', (d) -> yScaleRankAll(d.all_stats.rank))
+      .attr('r', 8)
+
+    cc = circles.selectAll('.in_circle')
+    cc.transition().duration(duration)
+      .attr("cx", rankLeft)
+      .attr('cy', (d) -> yScaleRank(d.stats.rank))
+      .attr('r', 8)
+
+    name = circles.selectAll(".name")
+    name.transition().duration(duration)
+      .attr("x", rankLeft - 20)
+      .attr("y", (d) -> yScaleRank(d.stats.rank))
+      .attr("dy", 5)
+
+    diffs = circles.selectAll(".diff")
+    diffs.transition().duration(40)
+      .style("opacity", 0)
+
+    links = circles.selectAll('.link')
+      .data(data)
+    links.enter().insert('line', '.out_circle')
+      .attr('class', 'link')
+      .attr('opacity', 0)
+      .attr('x1', (d) -> rankLeft)
+      .attr('y1', (d) ->  yScaleRank(d.stats.rank))
+      .attr('x2', (d) -> rankRight)
+      .attr('y2', (d) -> yScaleRankAll(d.all_stats.rank))
+
+    links.transition().duration(duration / 2).delay(duration)
+      .attr("opacity", 1)
+
+    rankTitles = circles.selectAll('.rank_title')
+      .data(['You', 'Everyone'])
+
+    rankTitles.enter().append('text')
+      .attr('class', 'rank_title')
+      .attr('opacity', 0)
+      .attr('text-anchor', 'middle')
+      .attr('x', (d,i) -> if i == 0 then rankLeft else rankRight)
+      .attr('y', 0)
+      .attr('dy', -24)
+      .text((d) -> d)
+  
+    rankTitles.transition().duration(duration / 2).delay(duration)
+      .attr('opacity', 1)
 
 
   updateCircles = () ->
+    links = circles.selectAll('.link')
+      .transition().duration(40)
+      .attr('opacity', 0)
+
+    rankTitles = circles.selectAll('.rank_title')
+      .transition().duration(40)
+      .attr('opacity', 0)
+
     c = circles.selectAll('.out_circle')
       .data(data)
     c.enter()
@@ -573,19 +639,22 @@ CircleCircle = () ->
       .attr("fill", (d) -> colors(d.name))
       .attr("opacity", 0.6)
 
-    c.transition().duration(2000)
+    c.transition().duration(duration)
       .attr('cx', width / 2)
       .attr('cy', (d,i) -> yScale(i))
       .attr('r', (d) -> rScaleOuter(d.all_stats.avg_count_per_user_tracks))
       .attr("fill", (d) -> colors(d.name))
       .attr("opacity", 0.6)
 
-    $('svg .out_circle').tipsy({
+    $('#vis_circles .out_circle').tipsy({
       gravity:'w'
       html:true
       title: () ->
         d = this.__data__
-        "<strong>#{toPercentage(d.all_stats.avg_count_per_user_tracks)}</strong> of all user's tracks have #{d.name}"
+        if display == 'circle'
+          "<strong>#{toPercentage(d.all_stats.avg_count_per_user_tracks)}</strong> of all user's tracks have #{d.name}"
+        else
+          "#{d.name} ranks <strong>#{(d.all_stats.rank)}</strong> for all users"
     })
 
     cc =circles.selectAll('.in_circle')
@@ -595,17 +664,20 @@ CircleCircle = () ->
       .attr('class', 'in_circle')
       .attr("fill", (d) -> colors(d.name))
 
-    cc.transition().duration(2000)
+    cc.transition().duration(duration)
       .attr('cx', width / 2)
       .attr('cy', (d,i) -> yScale(i))
       .attr('r', (d) -> rScaleInner(d.stats.count_ratio))
 
-    $('svg .in_circle').tipsy({
+    $('#vis_circles .in_circle').tipsy({
       gravity:'w'
       html:true
       title: () ->
         d = this.__data__
-        "<strong>#{toPercentage(d.stats.count_ratio)}</strong> of <strong>your</strong> tracks have #{d.name}"
+        if display == 'circle'
+          "<strong>#{toPercentage(d.stats.count_ratio)}</strong> of <strong>your</strong> tracks have #{d.name}"
+        else
+          "#{d.name} ranks <strong>#{(d.stats.rank)}</strong> for you"
     })
 
     name = circles.selectAll(".name")
@@ -613,14 +685,14 @@ CircleCircle = () ->
     name.enter()
       .append("text")
       .attr("class", "name")
-      .attr("x", width / 2 - 80)
       .attr("text-anchor", "end")
-      .attr("y", (d,i) -> yScale(i))
-      .attr("dy", 0)
       .text((d) -> d.name)
 
-    name.transition().duration(2000)
+    name.transition().duration(duration)
+      .attr("dy", 0)
       .attr("opacity", 1.0)
+      .attr("x", width / 2 - 80)
+      .attr("y", (d,i) -> yScale(i))
 
     diffs = circles.selectAll(".diff")
       .data(data)
@@ -638,7 +710,8 @@ CircleCircle = () ->
         else
           "#{d.diff}%"
 
-    diffs.transition().duration(2000).style("opacity", (d) -> if d.diff > 0 then 1.0 else 0.5)
+    diffs.transition().duration(duration / 2).delay(duration)
+      .style("opacity", (d) -> if d.diff > 0 then 1.0 else 0.5)
 
   chart.colors = (_) ->
     if !arguments.length

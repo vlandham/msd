@@ -82,6 +82,10 @@ body {
   font-weight: 700; 
 }
 
+.rank_title {
+  font-weight: 700; 
+}
+
 
 .connector {
   fill: none;
@@ -92,7 +96,7 @@ body {
 }
 
 .dot {
-  cursor: pointer;
+  /* cursor: pointer; */
   fill: steelblue;
   /* stroke: #fff; */
   /* stroke-width: .5px; */
