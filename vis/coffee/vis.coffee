@@ -518,6 +518,8 @@ CircleCircle = () ->
   circles = null
   colors = null
 
+  rankRight = 300
+
   display = 'circle'
   margin = {top: 60, right: 10, bottom: 0, left: 10}
   xScale = d3.scale.linear().range([0,width])
@@ -643,6 +645,13 @@ CircleCircle = () ->
       return colors
     colors = _
     chart
+
+  chart.toggle = () ->
+    display = if display == 'circle' then 'rank' else 'circle'
+    if display == 'rank'
+      updateRanks()
+    else
+      updateCircles()
 
   return chart
 
@@ -828,3 +837,9 @@ $ ->
 
   d3.select(window)
     .on("hashchange", hashchange)
+
+  d3.select("#circle_vis_toggle")
+    .on "click", () ->
+      circle_plot.toggle()
+      d3.event.preventDefault()
+
