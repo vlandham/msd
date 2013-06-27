@@ -157,7 +157,8 @@ meta_conn.row_factory = dict_factory
 #tag_counts_filename = 'data/tag_counts.txt'
 tag_counts_filename = 'data/tag_averages_100.txt'
 user_data_filename = 'data/top_users_data_filtered_valid_with_tracks.txt'
-users_filename = 'data/top_users_short.txt'
+#users_filename = 'data/top_users_short.txt'
+users_filename = 'data/top_users.txt'
 
 tag_counts = load_tag_averages(tag_counts_filename)
 all_user_data = load_user_data(user_data_filename)
@@ -169,12 +170,15 @@ out = open(output_index_file, 'w')
 out.write(",".join(["index", "name"]) + "\n")
 for idx, user in enumerate(users):
   print(user + "\n")
-  tracks = all_user_data[user]
+  if user in all_user_data:
+    tracks = all_user_data[user]
 
-  user_data = get_all_data(user, idx, tracks, tag_counts)
+    user_data = get_all_data(user, idx, tracks, tag_counts)
 
-  output_data(idx, user_data, output_dir)
-  out.write(",".join([str(idx), user_data["name"]]) + "\n")
+    output_data(idx, user_data, output_dir)
+    out.write(",".join([str(idx), user_data["name"]]) + "\n")
+  else:
+    print("error: can't find data for " + str(user) + "\n")
 
 tag_conn.close()
 meta_conn.close()
