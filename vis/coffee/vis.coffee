@@ -180,7 +180,7 @@ TagCircle = () ->
       console.log(nodeData)
 
       svg = d3.select(this).selectAll("svg").data([data])
-      gEnter = svg.enter().append("svg").append("g")
+      gEnter = svg.enter().append("svg").attr('class', 'vis').append("g")
       
       svg.attr("width", width + margin.left + margin.right )
       svg.attr("height", height + margin.top + margin.bottom )
@@ -402,7 +402,7 @@ ForceTags = () ->
       console.log(nodeData)
 
       svg = d3.select(this).selectAll("svg").data([data])
-      gEnter = svg.enter().append("svg").append("g")
+      gEnter = svg.enter().append("svg").attr('class', 'vis').append("g")
       
       svg.attr("width", width + margin.left + margin.right )
       svg.attr("height", height + margin.top + margin.bottom )
@@ -559,7 +559,7 @@ CircleCircle = () ->
       data = convertData(rawData)
 
       svg = d3.select(this).selectAll("svg").data([data])
-      gEnter = svg.enter().append("svg").append("g")
+      gEnter = svg.enter().append("svg").attr('class','vis').append("g")
       
       svg.attr("width", width + margin.left + margin.right )
       svg.attr("height", height + margin.top + margin.bottom )
@@ -766,7 +766,7 @@ DotPlot = () ->
       data = convertData(rawData)
 
       svg = d3.select(this).selectAll("svg").data([data])
-      gEnter = svg.enter().append("svg").append("g")
+      gEnter = svg.enter().append("svg").attr("class", 'vis').append("g")
       
       svg.attr("width", width + margin.left + margin.right )
       svg.attr("height", height + margin.top + margin.bottom )
@@ -903,7 +903,7 @@ $ ->
 
   updateActive = (new_id) ->
     user_id = new_id
-    d3.selectAll('svg').remove()
+    d3.selectAll('svg.vis').remove()
     top_plot = TagCircle()
     circle_plot = CircleCircle()
     resetPage()
