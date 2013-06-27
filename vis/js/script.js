@@ -6,6 +6,15 @@ function addCommas(e) {
     return x1 + x2
 }
 
+function roundNumber(e, t) {
+    var n = Math.round(e * Math.pow(10, t)) / Math.pow(10, t);
+    return n
+}
+
+function toPercentage(n) {
+  return roundNumber(n * 100, 0) + "%";
+}
+
 function shorten_nicely_with_ellipsis(){
     var str = arguments[1];
     var truncating = !!arguments[2];

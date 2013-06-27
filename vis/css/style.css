@@ -78,6 +78,11 @@ body {
   font-size: 20px;
 }
 
+.diff {
+  font-weight: 700; 
+}
+
+
 .connector {
   fill: none;
   stroke: #9ecae1;

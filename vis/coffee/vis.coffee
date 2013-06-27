@@ -120,7 +120,7 @@ TagCircle = () ->
   rScaleTrack = d3.scale.sqrt().range([3, maxTrackRadius]).domain([1, 200])
   # rScaleTrack = d3.scale.pow().exponent(0.5).domain([1, 200]).range([3, maxTrackRadius])
   #circleRadius = d3.scale.sqrt().range([3, 12]).domain(countExtent)
-  color = d3.scale.category10()
+  colors = d3.scale.category10()
 
   groupCenters = null
   tags = null
@@ -198,7 +198,7 @@ TagCircle = () ->
         .attr("cx", (d) -> groupCenters(d).x)
         .attr("cy", (d) -> groupCenters(d).y)
         .attr("r", tagRadius)
-        .style("fill", (d) -> color(d))
+        .style("fill", (d) -> colors(d))
         .style("opacity", 0.5)
       t.selectAll(".tag_title")
         .data(tags).enter()
@@ -307,6 +307,12 @@ TagCircle = () ->
     })
 
     node.exit().remove()
+
+  chart.colors = (_) ->
+    if !arguments.length
+      return colors
+    colors = _
+    chart
 
   return chart
 
@@ -505,10 +511,144 @@ ForceTags = () ->
 
   return chart
 
+CircleCircle = () ->
+  width = 400
+  height = 800
+  data = []
+  circles = null
+  colors = null
+
+  display = 'circle'
+  margin = {top: 60, right: 10, bottom: 0, left: 10}
+  xScale = d3.scale.linear().range([0,width])
+  # yScale = d3.scale.linear().domain([0,10]).range([0,height])
+  # yScale = d3.scale.ordinal().rangeRoundBands([0, height], 1)
+  xValue = (d) -> parseFloat(d.play_count)
+  yValue = (d) -> parseFloat(d.y)
+  maxTags = 8
+  yScale = d3.scale.linear().domain([0,maxTags]).range([0,height])
+  maxRadiusInner = 35
+  maxRadiusOuter = maxRadiusInner * 2
+  rScaleInner = d3.scale.sqrt().range([2, maxRadiusInner]).domain([0, 1])
+  rScaleOuter = d3.scale.sqrt().range([2, maxRadiusOuter]).domain([0, 1])
+
+  convertData = (rData) ->
+    data = []
+    rData.tags.forEach (d) ->
+      tag = {name:d.id, stats:d.tag_stats, all_stats:d.all_stats, diff:roundNumber(d.tag_stats.count_ratio * 100, 0)  - roundNumber(d.all_stats.avg_count_per_user_tracks * 100, 0)}
+      data.push(tag)
+    data.slice(0,maxTags)
+
+  chart = (selection) ->
+    selection.each (rawData) ->
+      data = convertData(rawData)
+
+      svg = d3.select(this).selectAll("svg").data([data])
+      gEnter = svg.enter().append("svg").append("g")
+      
+      svg.attr("width", width + margin.left + margin.right )
+      svg.attr("height", height + margin.top + margin.bottom )
+
+      g = svg.select("g")
+        .attr("transform", "translate(#{margin.left},#{margin.top})")
+
+      circles = g.append("g").attr("id", "vis_circles")
+      updateCircles()
+
+  updateRanks = () ->
+    c = circles.selectAll('.out_circle')
+    c.transition().duration(2000)
+      .attr('cx', rankRight)
+      .attr('r', 4)
+
+
+  updateCircles = () ->
+    c = circles.selectAll('.out_circle')
+      .data(data)
+    c.enter()
+      .append('circle')
+      .attr('class', 'out_circle')
+      .attr("fill", (d) -> colors(d.name))
+      .attr("opacity", 0.6)
+
+    c.transition().duration(2000)
+      .attr('cx', width / 2)
+      .attr('cy', (d,i) -> yScale(i))
+      .attr('r', (d) -> rScaleOuter(d.all_stats.avg_count_per_user_tracks))
+      .attr("fill", (d) -> colors(d.name))
+      .attr("opacity", 0.6)
+
+    $('svg .out_circle').tipsy({
+      gravity:'w'
+      html:true
+      title: () ->
+        d = this.__data__
+        "<strong>#{toPercentage(d.all_stats.avg_count_per_user_tracks)}</strong> of all user's tracks have #{d.name}"
+    })
+
+    cc =circles.selectAll('.in_circle')
+      .data(data)
+    cc.enter()
+      .append('circle')
+      .attr('class', 'in_circle')
+      .attr("fill", (d) -> colors(d.name))
+
+    cc.transition().duration(2000)
+      .attr('cx', width / 2)
+      .attr('cy', (d,i) -> yScale(i))
+      .attr('r', (d) -> rScaleInner(d.stats.count_ratio))
+
+    $('svg .in_circle').tipsy({
+      gravity:'w'
+      html:true
+      title: () ->
+        d = this.__data__
+        "<strong>#{toPercentage(d.stats.count_ratio)}</strong> of <strong>your</strong> tracks have #{d.name}"
+    })
+
+    name = circles.selectAll(".name")
+      .data(data)
+    name.enter()
+      .append("text")
+      .attr("class", "name")
+      .attr("x", width / 2 - 80)
+      .attr("text-anchor", "end")
+      .attr("y", (d,i) -> yScale(i))
+      .attr("dy", 0)
+      .text((d) -> d.name)
+
+    name.transition().duration(2000)
+      .attr("opacity", 1.0)
+
+    diffs = circles.selectAll(".diff")
+      .data(data)
+    diffs.enter()
+      .append("text")
+      .attr("class", "diff")
+      .attr("x", width / 2 - 80)
+      .attr("text-anchor", "end")
+      .attr("y", (d,i) -> yScale(i))
+      .attr("dy", 20)
+      .style("fill", (d) -> colors(d.name))
+      .text (d) ->
+        if d.diff > 0
+          "+#{d.diff}%"
+        else
+          "#{d.diff}%"
+
+    diffs.transition().duration(2000).style("opacity", (d) -> if d.diff > 0 then 1.0 else 0.5)
+
+  chart.colors = (_) ->
+    if !arguments.length
+      return colors
+    colors = _
+    chart
+
+  return chart
 
 DotPlot = () ->
   width = 200
-  height = 600
+  height = 800
   data = []
   dots = null
   margin = {top: 20, right: 250, bottom: 0, left: 10}
@@ -530,7 +670,7 @@ DotPlot = () ->
     tracks.sort (a,b) ->
       b.play_count - a.play_count
 
-    tracks = tracks.slice(0,15)
+    tracks = tracks.slice(0,20)
 
     play_extent = d3.extent(tracks, (d) -> d.play_count)
     xScale.domain([0, play_extent[1]])
@@ -594,7 +734,7 @@ DotPlot = () ->
       html:true
       title: () ->
         d = this.__data__
-        "#{d.play_count}"
+        "<strong>#{d.play_count}</strong> listens"
     })
 
   chart.height = (_) ->
@@ -657,12 +797,16 @@ $ ->
 
   top_plot = TagCircle()
   dot_plot = DotPlot()
+  circle_plot = CircleCircle()
 
   display = (error, all, data) ->
     setupPage(data)
     setupSearch(all)
     plotData("#top_vis", data, top_plot)
+    colors = top_plot.colors()
     plotData("#dot_vis", data, dot_plot)
+    circle_plot.colors(colors)
+    plotData("#circle_vis", data, circle_plot)
 
   queue()
     .defer(d3.csv, "data/users/all.csv")
