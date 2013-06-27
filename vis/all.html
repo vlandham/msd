@@ -32,41 +32,14 @@
       <a id="change_nav_link" href="#">change user</a>
       <input class="typeahead" id="search_user" type="text" autocomplete="off">
     </div>
-    <h1>Track Tag <span class="love">Love</span> for <span id="title_name"></span></h1>
-    <h2>You've listened to <span id="track_count"></span> songs with <span id="tag_count"></span> tags</h2>
-    <h3>Here are some of your favorites</h3>
+    <h1>All Users</h1>
     <div id="main" role="main">
       <div class="row">
         <div class="span12">
-          <div id="top_vis"></div>
-          <h4>About</h4>
-          <p id='top_vis_explain'>The most used tags for the songs you've listened to are shown above. Each <span id="gray_bubble">gray bubble</span> <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="12px" height="12px" id='little_circle' >
-  <circle cx="6" cy="6" r="6" class="inline_node"/></svg> is a song you've listened to. Songs you listen to more are larger. Each song is pulled towards its tags. Songs with only one tag are right on top of their tag's circle. Songs with many tags are pulled toward the center. 
-          </p>
-        </div> <!--! .span -->
-      </div> <!--! .row -->
-      <div class="row">
-        <div class="span6">
-          <h2>Your Favorite Songs</h2>
-          <p>Songs you've listened to the most.</p>
-          <div id="dot_vis"></div>
-        </div>
-        <div class="span6">
-          <h2>Your Favorite Tags</h2>
-          <p id="favorite_desc">Your top tags compared to everyone else.</p>
-          <div class="btn-group" id='circle_selector' data-toggle="buttons-radio">
-            <a class='btn active' id='percent_toggle'>Percent</a>
-            <a class='btn' id='rank_toggle'>Rank</a>
-          </div>
-          <div id="circle_vis"></div>
+          <div id="content"></div>
         </div>
       </div> <!--! .row -->
     </div> <!--! #main -->
-    <div id="footer">
-      <p>Data compiled from the <a href="http://labrosa.ee.columbia.edu/millionsong/">Million Song Dataset</a> <a href="http://labrosa.ee.columbia.edu/millionsong/tasteprofile">Taste Profile</a> and <a href="http://labrosa.ee.columbia.edu/millionsong/lastfm">Last.fm Tag</a> sets.
-      <p><a href="./notes/">Notes</a></p>
-      <p><a href="./all.html">All Users</a></p>
-    </div>
   </div> <!--! end of #container -->
 
 
@@ -81,17 +54,21 @@
   <script src="js/libs/bootstrap.min.js"></script>
   <script src="js/libs/d3.v3.js"></script>
   <script src="js/libs/queue.min.js"></script>
-  <script type="text/coffeescript" src="coffee/vis.coffee"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-    });
-  </script>
-
-
-  <script> // Change UA-XXXXX-X to be your site's ID
-    window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
-    Modernizr.load({
-      load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
+        function display(error, all) {
+        d3.select("#content").selectAll(".l")
+          .data(all).enter()
+          .append("li")
+          .attr("class", "l")
+          .append("a")
+          .attr("href", function(d) { return "./#" + d.index;})
+          .text(function(d) { return d.name; });
+      }
+      queue()
+        .defer(d3.csv, "data/users/all.csv")
+        .await(display);
+        
     });
   </script>
 

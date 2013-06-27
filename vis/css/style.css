@@ -123,3 +123,6 @@ line.baseline {
   stroke-linecap: round;
 }
 
+#footer p {
+  text-align: center;
+}
