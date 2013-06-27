@@ -1,0 +1,13 @@
+
+.axis {
+  fill: none;
+  stroke: #888;
+  stroke-width: 1.5px;
+}
+
+.interval {
+  fill: none;
+  stroke: #888;
+  stroke-width: 1.5px;
+  stroke-dasharray: 2,6;
+}
