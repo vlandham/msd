@@ -172,6 +172,18 @@ TagCircle = () ->
     nodes = nodes_map.values()
     {'nodes':nodes}
 
+  highlightTag = (d) ->
+    d3.select(this).style('opacity', 0.7)
+    vis.selectAll('.tag_title').filter((t) -> t == d)
+      .style('opacity', 0.8)
+
+
+  dimTag = (d) ->
+    d3.select(this).style('opacity', 0.5)
+    vis.selectAll('.tag_title').filter((t) -> t == d)
+      .style('opacity', 0.5)
+
+
   chart = (selection) ->
     selection.each (rawData) ->
       data = filterData(rawData)
@@ -200,10 +212,13 @@ TagCircle = () ->
         .attr("r", tagRadius)
         .style("fill", (d) -> colors(d))
         .style("opacity", 0.5)
+        .on("mouseover", highlightTag)
+        .on("mouseout", dimTag)
       t.selectAll(".tag_title")
         .data(tags).enter()
         .append("text")
         .attr("class", "tag_title")
+        .style("opacity", 0.5)
         .attr("x", (d) -> groupCenters(d).x)
         .attr("y", (d) -> groupCenters(d).y)
         .attr("dx", (d) -> if groupCenters(d).x > (width / 2) then tagRadius + 10 else -(tagRadius + 10))
@@ -260,6 +275,8 @@ TagCircle = () ->
   hideTags = (d) ->
     vis.selectAll(".tag_link").remove()
     tag.style("opacity", 0.5)
+    vis.selectAll(".tag_title").filter( (t) -> d.tags.indexOf(t) != -1)
+      .style('opacity', 0.5)
 
   showTags = (d) ->
     vis.selectAll(".tag_link")
@@ -274,6 +291,8 @@ TagCircle = () ->
 
     tag.filter((t) -> d.tags.indexOf(t) != -1)
       .style("opacity", 1.0)
+    vis.selectAll(".tag_title").filter( (t) -> d.tags.indexOf(t) != -1)
+      .style('opacity', 1.0)
 
 
   update = () ->
