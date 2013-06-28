@@ -115,7 +115,7 @@ TagCircle = () ->
   nodeData = null
   nodes = []
   links = []
-  margin = {top: 20, right: 20, bottom: 30, left: 20}
+  margin = {top: 20, right: 28, bottom: 30, left: 28}
   maxTrackRadius = 35
   rScaleTrack = d3.scale.sqrt().range([3, maxTrackRadius]).domain([1, 200])
   # rScaleTrack = d3.scale.pow().exponent(0.5).domain([1, 200]).range([3, maxTrackRadius])
@@ -148,6 +148,7 @@ TagCircle = () ->
     tags = []
     rData.tags.forEach (t) ->
       tags.push(t.id)
+    # tags.sort (a,b) -> Math.min(a.split(" ").map((w) -> levenshteinDistance(w, tags[0]))) - Math.min(b.split(" ").map((w) -> levenshteinDistance(w, tags[0])))
 
     groupCenters = RadialPlacement().center({"x":width / 2, "y":height / 2 })
       .radius(250).increment(28).keys(tags)
@@ -189,7 +190,6 @@ TagCircle = () ->
       data = filterData(rawData)
       updateCenters(data)
       nodeData = tagData(data)
-      console.log(nodeData)
 
       svg = d3.select(this).selectAll("svg").data([data])
       gEnter = svg.enter().append("svg").attr('class', 'vis').append("g")
@@ -314,7 +314,7 @@ TagCircle = () ->
       .attr("r", (d) -> d.radius)
       .on("mouseover", showTags)
       .on("mouseout", hideTags)
-      .on('click', (d) -> console.log(d))
+      # .on('click', (d) -> console.log(d))
       .call(force.drag)
 
     $('svg .node').tipsy({
@@ -418,7 +418,6 @@ ForceTags = () ->
       data = filterData(rawData)
       nodeData = transformData(data)
       # nodeData = linkData(data)
-      console.log(nodeData)
 
       svg = d3.select(this).selectAll("svg").data([data])
       gEnter = svg.enter().append("svg").attr('class', 'vis').append("g")
@@ -876,7 +875,7 @@ hideSearch = () ->
   $('#change_nav_link').show()
 
 changeUser = (user) ->
-  console.log(user)
+  # console.log(user)
   hideSearch()
   id = root.all.get(user)
   if id
@@ -890,7 +889,7 @@ setupSearch = (all) ->
     root.all.set(a.name, a.index)
 
   users = root.all.keys()
-  console.log(users)
+  # console.log(users)
   $('#search_user').typeahead({source:users, updater:changeUser})
 
 $ ->
