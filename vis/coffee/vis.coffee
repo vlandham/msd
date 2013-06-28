@@ -148,6 +148,23 @@ TagCircle = () ->
     tags = []
     rData.tags.forEach (t) ->
       tags.push(t.id)
+    dists = []
+    tags.forEach (t1,i) ->
+      dists[i] = []
+      tags.forEach (t2,j) ->
+        if i == j
+          dists[i][j] = -1
+        else
+          t1_words = t1.split(/[\s-]/)
+          t2_words = t2.split(/[\s-]/)
+          match = Math.max.apply(Math, t1_words.map( (t1_word) -> t2_words.indexOf(t1_word)))
+          # tds = t1_words.map((t1_word) -> Math.min(t2_words.map (t2_word) -> levenshteinDistance(t1_word, t2_word)))
+          
+          dists[i][j] = match
+    sums = dists.map (dd,i) -> {tag:tags[i], cost:dd.reduce (a,b) -> a + b}
+    sums.sort (a,b) -> b.cost - a.cost
+    tags = sums.map (dd) -> dd.tag
+
     # tags.sort (a,b) -> Math.min(a.split(" ").map((w) -> levenshteinDistance(w, tags[0]))) - Math.min(b.split(" ").map((w) -> levenshteinDistance(w, tags[0])))
 
     groupCenters = RadialPlacement().center({"x":width / 2, "y":height / 2 })
