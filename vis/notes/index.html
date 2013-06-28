@@ -72,5 +72,31 @@
 <p>songs that are heard by many people - and most listen to the song many times. These are songs that seem to have some staying power - users listen to them a bunch.</p>
 <p>could be just a few users listening to these songs a whole bunch? Possible - but unlikely given the previous graph that very few users have very high play counts.</p>
 <p>what makes these songs in the higher trend stand out from songs that have a similar number of users?</p>
+<p><a href="top/">Top Song Visual</a></p>
+<h2>Visualization thoughts</h2>
+<ul>
+<li>Recommendation system is useful to individual user — so focus on visualization that works for the individual</li>
+<li>Parallels between fashion world and music world: <strong>trends</strong> and <strong>styles</strong> occur in both — <strong>tags</strong> represent, in some ways, the trends of music.</li>
+<li>Engagement - want something interactive so user will spend some time playing around with vis.</li>
+<li>Artistic - individuals may or may not be attuned to data visualization best practices. Trend toward artistic interpretation (where exact numbers may or may not matter so much) to draw them in more.</li>
+<li>Don’t dump too much data on them. Find balance between interesting and too much.</li>
+</ul>
+<h2>Revisions</h2>
+<h3>idea: tree of tags / songs.</h3>
+<p>collapsible. similar to:</p>
+<p><a href="img/network_example.png"><img height=400 src="img/network_example.png"/></a></p>
+<p>prototype:</p>
+<p>collapsed - just tags:</p>
+<p><a href="img/proto_one.png"><img height=400 src="img/proto_one.png"/></a></p>
+<p>expanded with songs:</p>
+<p><a href="img/proto_two.png"><img height=400 src="img/proto_two.png"/></a></p>
+<p><strong>problem</strong>: many songs have many different tags. Don’t work well with tree structure.</p>
+<h3>idea: network of tags / songs</h3>
+<p>Similar to traditional force-directed network.</p>
+<p><strong>problem</strong>: becomes hairball fast.</p>
+<h3>idea: multiple foci</h3>
+<p>avoid showing all connections at same time</p>
+<p>keep tag nodes in consistent location</p>
+<p><a href="img/foci_one.png"><img height=400 src="img/foci_one.png"/></a></p>
 </body>
 </html>

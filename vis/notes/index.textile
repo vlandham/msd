@@ -76,3 +76,47 @@ could be just a few users listening to these songs a whole bunch? Possible - but
 
 what makes these songs in the higher trend stand out from songs that have a similar number of users?
 
+<a href="top/">Top Song Visual</a>
+
+h2. Visualization thoughts
+
+* Recommendation system is useful to individual user -- so focus on visualization that works for the individual
+* Parallels between fashion world and music world: *trends* and *styles* occur in both -- *tags* represent, in some ways, the trends of music.
+* Engagement - want something interactive so user will spend some time playing around with vis.
+* Artistic - individuals may or may not be attuned to data visualization best practices. Trend toward artistic interpretation (where exact numbers may or may not matter so much) to draw them in more.
+* Don't dump too much data on them. Find balance between interesting and too much.
+
+h2. Revisions
+
+h3. idea: tree of tags / songs. 
+
+collapsible. similar to:
+
+<a href="img/network_example.png"><img height=400 src="img/network_example.png"/></a>
+
+prototype:
+
+collapsed - just tags:
+
+<a href="img/proto_one.png"><img height=400 src="img/proto_one.png"/></a>
+
+expanded with songs:
+
+<a href="img/proto_two.png"><img height=400 src="img/proto_two.png"/></a>
+
+
+*problem*: many songs have many different tags. Don't work well with tree structure.
+
+h3. idea: network of tags / songs
+
+Similar to traditional force-directed network.
+
+*problem*: becomes hairball fast.
+
+h3. idea: multiple foci
+
+avoid showing all connections at same time
+
+keep tag nodes in consistent location
+
+<a href="img/foci_one.png"><img height=400 src="img/foci_one.png"/></a>
