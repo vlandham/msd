@@ -76,7 +76,7 @@ could be just a few users listening to these songs a whole bunch? Possible - but
 
 what makes these songs in the higher trend stand out from songs that have a similar number of users?
 
-<a href="top/">Top Song Visual</a>
+<a href="../../top/">Top Song Visual</a>
 
 h2. Visualization thoughts
 
