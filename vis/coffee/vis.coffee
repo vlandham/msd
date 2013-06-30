@@ -352,200 +352,9 @@ TagCircle = () ->
 
   return chart
 
-# original idea of network/tree of tags. hide/expand functionality
-# didn't use as too many songs have too many tags
-ForceTags = () ->
-  width = 900
-  height = 600
-  data = []
-  vis = null
-  link = null
-  node = null
-  nodeData = null
-  nodes = []
-  links = []
-  margin = {top: 20, right: 20, bottom: 20, left: 20}
-  maxRadiusInner = 65
-  rScaleInner = d3.scale.sqrt().range([2, maxRadiusInner]).domain([0, 1])
-  rScaleTrack = d3.scale.sqrt().range([2, maxRadiusInner]).domain([1, 200])
-  color = d3.scale.category10()
-  #rInnerValue = (d) -> parseFloat(d.size)
-
-  force = d3.layout.force()
-    # .charge((d) -> -(d.size * 2 + 10))
-    .charge (d) ->
-      if d.is_tag
-        -Math.pow(d.size, 2.0) / 2
-      else
-        -40
-    # .charge(-30)
-    # .linkDistance((d) -> if d.source.fixed then 60 else 50)
-    # .linkStrength(1)
-    .linkDistance(100)
-    # .charge(-200)
-    .size([width, height])
-
-
-  filterData = (rData) ->
-    total_tags = 0
-    rData.tags = rData.tags.filter (tag) ->
-      
-      keep = total_tags < 10
-      total_tags += 1
-      keep
-    rData
-
-  linkData = (rData) ->
-    nodes_map = d3.map()
-    nodes = []
-    links = []
-    rData.tags.forEach (t) ->
-      node_id = t.id
-      tag_node = {'size':5,'id':node_id, 'name':t.id, 'is_tag':true}
-      nodes_map.set(node_id, tag_node)
-      t.tracks.forEach (track) ->
-        track_id = track.track_id
-        if !nodes_map.has(track_id)
-          track_node = {'size':5, 'id':track_id, 'name':track.title}
-          nodes_map.set(track_id, track_node)
-        link = {'source':nodes_map.get(node_id), 'target':nodes_map.get(track_id)}
-        links.push(link)
-    nodes = nodes_map.values()
-    {'nodes':nodes, 'links':links}
-
-  transformData = (rData) ->
-    node_id = 0
-    nodeData = {'nodes':[], 'links':[]}
-    nodeData.nodes.push({'name':'me', 'fixed':true, 'size':rScaleInner(0.01), 'x': width / 2, 'y': height / 2 - 80, 'children_count':rData.tags.length, 'id': ++node_id})
-
-    rData.tags.forEach (t) ->
-      t_node = {'size':rScaleInner(t.tag_stats.play_ratio), 'id':++node_id, 'name':t.id, 'children_count':t.tracks.length, 'is_tag':true, 'hide_children':true}
-      nodeData.nodes.push(t_node)
-      node_index = nodeData.nodes.length - 1
-      nodeData.links.push({'source':0, 'target':node_index})
-      t.tracks.forEach (track) ->
-        track_node = {'size':rScaleTrack(track.play_count), 'id':++node_id, 'name':track.title, 'hidden':true}
-        nodeData.nodes.push(track_node)
-        nodeData.links.push({'source':node_index, 'target':nodeData.nodes.length - 1})
-
-    nodeData
-
-  chart = (selection) ->
-    selection.each (rawData) ->
-      data = filterData(rawData)
-      nodeData = transformData(data)
-      # nodeData = linkData(data)
-
-      svg = d3.select(this).selectAll("svg").data([data])
-      gEnter = svg.enter().append("svg").attr('class', 'vis').append("g")
-      
-      svg.attr("width", width + margin.left + margin.right )
-      svg.attr("height", height + margin.top + margin.bottom )
-
-      g = svg.select("g")
-        .attr("transform", "translate(#{margin.left},#{margin.top})")
-
-      vis = g.append("g").attr("id", "vis_nodes")
-      update()
-
-  collide = (node) ->
-    r = node.size + 16
-    nx1 = node.x - r
-    nx2 = node.x + r
-    ny1 = node.y - r
-    ny2 = node.y + r
-    (quad, x1, y1, x2, y2) ->
-      if quad.point && (quad.point != node)
-        x = node.x - quad.point.x
-        y = node.y - quad.point.y
-        l = Math.sqrt(x * x + y * y)
-        r = node.size + quad.point.size
-        if (l < r)
-          l = (l - r) / l * .5
-          node.x -= x *= l
-          node.y -= y *= l
-          quad.point.x += x
-          quad.point.y += y
-      return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1
-
-  click = (d) ->
-    hide = if d.hide_children then false else true
-    d.hide_children = hide
-    nodeData.links.forEach (l) ->
-      if l.source == d
-        l.target.hidden = hide
-    update()
-
-  # click = (d) ->
-  #   if d.hidden
-  #     d.hidden = false
-  #   else
-  #     d.hidden = true
-  #   update()
-
-  tick = () ->
-    q = d3.geom.quadtree(nodes)
-    nodes.forEach (n) ->
-      q.visit(collide(n))
-
-    link
-      .attr("x1", (d) -> d.source.x)
-      .attr("y1", (d) -> d.source.y)
-      .attr("x2", (d) -> d.target.x)
-      .attr("y2", (d) -> d.target.y)
-
-    node
-      .attr("transform", (d) -> "translate(#{d.x},#{d.y})")
-      # .attr("cx", (d) -> d.x)
-      # .attr("cy", (d) -> d.y)
-
-  update = () ->
-    force
-      .nodes(nodeData.nodes, (d) -> d.id)
-      .links(nodeData.links, (d) -> d.source.id + "_" + d.target.id)
-      .on("tick", tick)
-      .start()
-
-    nodes = nodeData.nodes.filter (d) -> !d.hidden
-    links = nodeData.links.filter (d) -> !d.target.hidden
-
-    force
-      .nodes(nodes, (d) -> d.id)
-      .links(links, (d) -> d.source.id + "_" + d.target.id)
-      .on("tick", tick)
-      .start()
-
-    link = vis.selectAll("line.link")
-      .data(force.links(), (d) -> d.target.id)
-
-    link.enter().insert("line", ".node")
-      .attr("class", "link")
-      .attr("x1", (d) -> d.source.x)
-      .attr("y1", (d) -> d.source.y)
-      .attr("x2", (d) -> d.target.x)
-      .attr("y2", (d) -> d.target.y)
-
-    link.exit().remove()
-
-    node = vis.selectAll(".node")
-      .data(force.nodes(), (d) -> d.id)
-      # .style("fill", "steelblue")
-
-    node.enter().append("g")
-      .attr("class", "node")
-      .attr("transform", (d) -> "translate(#{d.x},#{d.y})")
-      .append("circle")
-      # .attr("cx", (d) -> d.x)
-      # .attr("cy", (d) -> d.y)
-      .attr("r", (d) -> d.size)
-      .style("fill", (d) -> if d.is_tag then color(d.id) else "#777")
-      .on("click", click)
-      .call(force.drag)
-
-    node.exit().remove()
-
-  return chart
-
+# circles inside circles. 
+# provide diff and ranking
+# meant to just highlight the unexpected
 CircleCircle = () ->
   width = 400
   height = 780
@@ -568,8 +377,11 @@ CircleCircle = () ->
   yScale = d3.scale.linear().domain([0,maxTags]).range([0,height])
   maxRadiusInner = 35
   maxRadiusOuter = maxRadiusInner * 2
+  maxRad = 40
   rScaleInner = d3.scale.sqrt().range([2, maxRadiusInner]).domain([0, 1])
   rScaleOuter = d3.scale.sqrt().range([2, maxRadiusOuter]).domain([0, 1])
+  rScale = d3.scale.sqrt().range([2, maxRad]).domain([0, 100])
+  rScaleDiff = d3.scale.sqrt().range([2, maxRad]).domain([2, 80])
   yScaleRankAll = d3.scale.linear().range([0, height]).clamp(true)
   yScaleRank = d3.scale.linear().range([0, height]).clamp(true)
 
@@ -581,11 +393,15 @@ CircleCircle = () ->
     data = data.slice(0,maxTags)
     allRankExtent = d3.extent(data, (d) -> parseInt(d.all_stats.rank))
     rankExtent = d3.extent(data, (d) -> parseInt(d.stats.rank))
-    max = Math.min(30, allRankExtent[1])
-    max =allRankExtent[1]
+    # max = Math.min(30, allRankExtent[1])
+    # max =allRankExtent[1]
+    max = Math.min(80, allRankExtent[1])
     yScaleRankAll.domain([1, max])
     # yScaleRank.domain([1, rankExtent[1]])
     yScaleRank.domain([1, max])
+    # rScaleDiff.domain(d3.extent(data, (d) -> d.diff))
+    rScaleDiff.domain([-50, 50])
+    rScaleDiff.domain([-100, 100])
 
     data
 
@@ -605,14 +421,32 @@ CircleCircle = () ->
       circles = g.append("g").attr("id", "vis_circles")
       updateCircles()
 
+  showLink = (d) ->
+    d3.selectAll(".link")
+      .style "stroke", (l) ->
+        if l == d
+          colors(d.name)
+        else
+          "#9ecae1"
+
+  hideLink = (d) ->
+
+    d3.selectAll(".link")
+      .style("stroke", " #9ecae1")
+
+
   updateRanks = () ->
     c = circles.selectAll('.out_circle')
+      .on("mouseover", showLink)
+      .on("mouseout", hideLink)
     c.transition().duration(duration)
       .attr('cx', rankRight)
       .attr('cy', (d) -> yScaleRankAll(d.all_stats.rank))
       .attr('r', 8)
 
     cc = circles.selectAll('.in_circle')
+      .on("mouseover", showLink)
+      .on("mouseout", hideLink)
     cc.transition().duration(duration)
       .attr("cx", rankLeft)
       .attr('cy', (d) -> yScaleRank(d.stats.rank))
@@ -627,6 +461,7 @@ CircleCircle = () ->
     diffs = circles.selectAll(".diff")
     diffs.transition().duration(40)
       .style("opacity", 0)
+      .attr("x", 0)
 
     links = circles.selectAll('.link')
       .data(data)
@@ -655,6 +490,7 @@ CircleCircle = () ->
   
     rankTitles.transition().duration(duration / 2).delay(duration)
       .attr('opacity', 1)
+      .attr('y', 0)
 
 
   updateCircles = () ->
@@ -665,6 +501,7 @@ CircleCircle = () ->
     rankTitles = circles.selectAll('.rank_title')
       .transition().duration(40)
       .attr('opacity', 0)
+      .attr('y', -30)
 
     c = circles.selectAll('.out_circle')
       .data(data)
@@ -677,7 +514,12 @@ CircleCircle = () ->
     c.transition().duration(duration)
       .attr('cx', width / 2)
       .attr('cy', (d,i) -> yScale(i))
-      .attr('r', (d) -> rScaleOuter(d.all_stats.avg_count_per_user_tracks))
+      .attr 'r', (d) -> 
+        if rScaleOuter(d.all_stats.avg_count_per_user_tracks) >= rScaleInner(d.stats.count_ratio)
+          rScaleOuter(d.all_stats.avg_count_per_user_tracks)
+        else
+          rScaleOuter(d.all_stats.avg_count_per_user_tracks) + 5
+      .attr('r', (d) -> rScale(100))
       .attr("fill", (d) -> colors(d.name))
       .attr("opacity", 0.6)
 
@@ -692,6 +534,16 @@ CircleCircle = () ->
           "#{d.name} ranks <strong>#{(d.all_stats.rank)}</strong> for all users"
     })
 
+    # mc = circles.selectAll('.mid_circle')
+    #   .data(data)
+    # mc.enter()
+    #   .append('circle')
+    #   .attr('class', 'mid_circle')
+    # mc.transition().duration(duration)
+    #   .attr('cx', width / 2)
+    #   .attr('cy', (d,i) -> yScale(i))
+    #   .attr('r', (d) -> rScaleDiff(0))
+
     cc =circles.selectAll('.in_circle')
       .data(data)
     cc.enter()
@@ -702,7 +554,8 @@ CircleCircle = () ->
     cc.transition().duration(duration)
       .attr('cx', width / 2)
       .attr('cy', (d,i) -> yScale(i))
-      .attr('r', (d) -> rScaleInner(d.stats.count_ratio))
+      # .attr('r', (d) -> rScaleInner(d.stats.count_ratio))
+      .attr('r', (d) -> rScaleDiff( d.diff))
 
     $('#vis_circles .in_circle').tipsy({
       gravity:'w'
@@ -734,7 +587,6 @@ CircleCircle = () ->
     diffs.enter()
       .append("text")
       .attr("class", "diff")
-      .attr("x", width / 2 - 80)
       .attr("text-anchor", "end")
       .attr("y", (d,i) -> yScale(i))
       .attr("dy", 20)
@@ -747,6 +599,7 @@ CircleCircle = () ->
 
     diffs.transition().duration(duration / 2).delay(duration)
       .style("opacity", (d) -> if d.diff > 0 then 1.0 else 0.5)
+      .attr("x", width / 2 - 80)
 
   chart.colors = (_) ->
     if !arguments.length
@@ -764,6 +617,9 @@ CircleCircle = () ->
 
   return chart
 
+# ---
+# stem plot of top songs
+# ---
 DotPlot = () ->
   width = 200
   height = 800
@@ -838,6 +694,15 @@ DotPlot = () ->
       .attr("cy", (d,i) -> yScale(i))
       .attr("r", 8)
 
+    dots.selectAll(".song_title")
+      .data(data).enter()
+      .append("text")
+      .attr("class", "song_title")
+      .attr("x", (d) -> xScale(xValue(d)))
+      .attr("y", (d,i) -> yScale(i))
+      .attr("dx", 10)
+      .attr("dy", -2)
+      .text((d) -> truncate(d.title, 30))
     dots.selectAll(".artist")
       .data(data).enter()
       .append("text")
@@ -845,8 +710,8 @@ DotPlot = () ->
       .attr("x", (d) -> xScale(xValue(d)))
       .attr("y", (d,i) -> yScale(i))
       .attr("dx", 10)
-      .attr("dy", 4)
-      .text((d) -> truncate(d.title, 30))
+      .attr("dy", 10)
+      .text((d) -> "  by " + truncate(d.artist_name, 30))
     $('svg .dot').tipsy({
       gravity:'s'
       html:true
