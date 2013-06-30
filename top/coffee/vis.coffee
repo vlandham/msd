@@ -8,16 +8,30 @@ DiffPlot = () ->
   matches = []
   followers = []
   points = null
-  margin = {top: 50, right: 20, bottom: 40, left: 220}
+  margin = {top: 60, right: 20, bottom: 40, left: 220}
   xScale = d3.scale.linear().domain([0,10]).range([0,width])
   yScale = d3.scale.linear().domain([0,10]).range([0,height])
-  xValue = (d) -> parseFloat(d.plays)
+  xValue = (d) -> parseFloat(d.play_ratio)
+  # xValue = (d) -> parseFloat(d.plays)
   yValue = (d) -> parseFloat(d.users)
+
+  titleOffsets = {'SOUNZHU12A8AE47481':{dx:13, dy:-6}
+  'SOVDSJC12A58A7A271':{dx:10, dy:-6}
+  'SOUFTBI12AB0183F65':{dx:10, dy:8}
+  'SOOFYTN12A6D4F9B35':{dx:8, dy:-8}
+  'SOBOUPA12A6D4F81F1':{dx:8, dy:12}
+  'SOHTKMO12AB01843B0':{dx:-4, dy:23}
+  'SOPUCYA12A8C13A694':{dx:12, dy:-4}
+  }
 
 
   parseData = (rData) ->
+    rData.forEach (d) ->
+      d.play_ratio = parseFloat(d.plays) / d.users
     playsExtent = d3.extent(rData, (d) -> xValue(d))
-    xScale.domain([playsExtent[0] - 6000, playsExtent[1] + 5000])
+    playRatioExtent = d3.extent(rData, (d) -> d.play_ratio)
+    # xScale.domain([playsExtent[0] - 6000, playsExtent[1] + 5000])
+    xScale.domain([2, playRatioExtent[1] + 2])
     usersExtent = d3.extent(rData, (d) -> yValue(d))
     yScale.domain([usersExtent[0] - 1000, usersExtent[1]])
 
@@ -66,19 +80,35 @@ DiffPlot = () ->
       points = g.append("g").attr("id", "vis_points")
       update()
 
+  showDiff = (d) ->
+    d3.selectAll('.match').filter((m) -> m.leader == d)
+      .style('opacity', 1)
+
+  hideDiff = (d) ->
+    d3.selectAll('.match')
+      .style('opacity', 0)
+
   update = () ->
     points.append("text")
       .attr('class', 'x title')
       .attr('x', 20)
-      .attr('y', -20)
-      .text("Number of times a song is played")
+      .attr('y', -40)
+      .text("Average Listens per User")
 
     points.append("line")
       .attr("class", "arrow")
-      .attr('x1', 220)
-      .attr('y1', 0)
-      .attr('x2', 295)
-      .attr('y2', 0)
+      .attr('x1', 190)
+      .attr('y1', -43)
+      .attr('x2', 240)
+      .attr('y2', -43)
+
+    points.selectAll("x_title")
+      .data([2,3,4,5,6,7,8,9,10])
+      .enter().append("text")
+      .attr("class", "x_title")
+      .attr("x", (d) -> xScale(d))
+      .attr("y", -20)
+      .text((d) -> "#{d}x")
 
     points.append("text")
       .attr('class', 'y title')
@@ -90,7 +120,7 @@ DiffPlot = () ->
       .attr('class', 'y title')
       .attr('x', -180)
       .attr('y', 20)
-      .text("have heard") #have heard the song")
+      .text("have listened to") #have heard the song")
     points.append("text")
       .attr('class', 'y title')
       .attr('x', -180)
@@ -105,7 +135,7 @@ DiffPlot = () ->
       .attr('y2', 100)
 
     points.append("line")
-      .attr("class", "x axis")
+      .attr("class", "y axis")
       .attr("x1", 0)
       .attr("x2", 0)
       .attr("y1", 0)
@@ -154,6 +184,7 @@ DiffPlot = () ->
       # .attr("y2", (d) -> yScale(yValue(d.follower)))
     m.append("path")
       .attr("class", "match")
+      .style("opacity", 0)
       .attr "d", (d) -> 
         x1 = xScale(xValue(d.leader))
         y1 = yScale(yValue(d.leader))
@@ -167,11 +198,33 @@ DiffPlot = () ->
       .attr("r", (d) -> 5)
       .attr("fill", (d) -> "#777")
     m.append("circle").datum((d) -> d.leader)
-      .attr("class", 'point leader')
+      .attr("class", 'leader')
       .attr("cx", (d) -> xScale(xValue(d)))
       .attr("cy", (d) -> yScale(yValue(d)))
       .attr("r", (d) -> 8)
       .attr("fill", (d) -> "#8F2C1B")
+      .on('mouseover', showDiff)
+      .on('mouseout', hideDiff)
+
+    t = points.selectAll(".song_title")
+      .data(matches)
+    t.enter().append("text").datum((d) -> d.leader)
+      .attr("class", "song_title")
+      .attr("x", (d) -> xScale(xValue(d)))
+      .attr("y", (d) -> yScale(yValue(d)))
+      .attr 'dx', (d) -> 
+        if titleOffsets[d.meta.song_id]
+          titleOffsets[d.meta.song_id].dx
+        else
+          14
+      .attr 'dy', (d) ->
+        if titleOffsets[d.meta.song_id]
+          titleOffsets[d.meta.song_id].dy
+        else
+          4
+      .text((d) -> d.meta.title)
+
+
 
     $('svg .point').tipsy({
       gravity:'w'
