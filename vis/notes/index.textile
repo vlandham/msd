@@ -1,4 +1,16 @@
-h1. Notes on Process
+h2. Visualization thoughts
+
+* Recommendation system is useful to individual user -- so focus on visualization that works for the individual
+* Parallels between fashion world and music world: *trends* and *styles* occur in both -- *tags* represent, in some ways, the trends of music.
+* Engagement - want something interactive so user will spend some time playing around with vis.
+* Artistic - individuals may or may not be attuned to data visualization best practices. Trend toward artistic interpretation (where exact numbers may or may not matter so much) to draw them in more.
+* Don't dump too much data on them. Find balance between interesting and too much.
+
+h2. Notes on final vis
+
+* generated for 2,000 users with top number of songs listened to. 
+* showing top 10 tags
+* showing max of top 35 songs played for each tag
 
 h2. Initial processing
 
@@ -78,13 +90,12 @@ what makes these songs in the higher trend stand out from songs that have a simi
 
 <a href="../../top/">Top Song Visual</a>
 
-h2. Visualization thoughts
+h3. Revisions 
 
-* Recommendation system is useful to individual user -- so focus on visualization that works for the individual
-* Parallels between fashion world and music world: *trends* and *styles* occur in both -- *tags* represent, in some ways, the trends of music.
-* Engagement - want something interactive so user will spend some time playing around with vis.
-* Artistic - individuals may or may not be attuned to data visualization best practices. Trend toward artistic interpretation (where exact numbers may or may not matter so much) to draw them in more.
-* Don't dump too much data on them. Find balance between interesting and too much.
+Use raw play counts. Connect matches with straight lines
+
+<a href="img/top_rev1.png"><img height=400 src="img/top_rev1.png"/></a>
+
 
 h2. Revisions
 
@@ -120,3 +131,10 @@ avoid showing all connections at same time
 keep tag nodes in consistent location
 
 <a href="img/foci_one.png"><img height=400 src="img/foci_one.png"/></a>
+
+h3. idea: use size of bubbles in circle plot to represent percentage of songs with that tag
+
+<a href="img/circles_rev.png"><img height=600 src="img/circles_rev.png"/></a>
+
+*problem*: difficult to see what is going on. difficult to compare between tags.
+

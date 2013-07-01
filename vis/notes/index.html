@@ -9,7 +9,20 @@
   <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 <body>
-<h1>Notes on Process</h1>
+<h2>Visualization thoughts</h2>
+<ul>
+<li>Recommendation system is useful to individual user — so focus on visualization that works for the individual</li>
+<li>Parallels between fashion world and music world: <strong>trends</strong> and <strong>styles</strong> occur in both — <strong>tags</strong> represent, in some ways, the trends of music.</li>
+<li>Engagement - want something interactive so user will spend some time playing around with vis.</li>
+<li>Artistic - individuals may or may not be attuned to data visualization best practices. Trend toward artistic interpretation (where exact numbers may or may not matter so much) to draw them in more.</li>
+<li>Don’t dump too much data on them. Find balance between interesting and too much.</li>
+</ul>
+<h2>Notes on final vis</h2>
+<ul>
+<li>generated for 2,000 users with top number of songs listened to. </li>
+<li>showing top 10 tags</li>
+<li>showing max of top 35 songs played for each tag</li>
+</ul>
 <h2>Initial processing</h2>
 <ul>
 <li>Filtered out songs with song / track mismatches
@@ -73,14 +86,9 @@
 <p>could be just a few users listening to these songs a whole bunch? Possible - but unlikely given the previous graph that very few users have very high play counts.</p>
 <p>what makes these songs in the higher trend stand out from songs that have a similar number of users?</p>
 <p><a href="../../top/">Top Song Visual</a></p>
-<h2>Visualization thoughts</h2>
-<ul>
-<li>Recommendation system is useful to individual user — so focus on visualization that works for the individual</li>
-<li>Parallels between fashion world and music world: <strong>trends</strong> and <strong>styles</strong> occur in both — <strong>tags</strong> represent, in some ways, the trends of music.</li>
-<li>Engagement - want something interactive so user will spend some time playing around with vis.</li>
-<li>Artistic - individuals may or may not be attuned to data visualization best practices. Trend toward artistic interpretation (where exact numbers may or may not matter so much) to draw them in more.</li>
-<li>Don’t dump too much data on them. Find balance between interesting and too much.</li>
-</ul>
+<h3>Revisions</h3>
+<p>Use raw play counts. Connect matches with straight lines</p>
+<p><a href="img/top_rev1.png"><img height=400 src="img/top_rev1.png"/></a></p>
 <h2>Revisions</h2>
 <h3>idea: tree of tags / songs.</h3>
 <p>collapsible. similar to:</p>
@@ -98,5 +106,8 @@
 <p>avoid showing all connections at same time</p>
 <p>keep tag nodes in consistent location</p>
 <p><a href="img/foci_one.png"><img height=400 src="img/foci_one.png"/></a></p>
+<h3>idea: use size of bubbles in circle plot to represent percentage of songs with that tag</h3>
+<p><a href="img/circles_rev.png"><img height=600 src="img/circles_rev.png"/></a></p>
+<p><strong>problem</strong>: difficult to see what is going on. difficult to compare between tags.</p>
 </body>
 </html>
