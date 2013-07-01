@@ -8,7 +8,7 @@ DiffPlot = () ->
   matches = []
   followers = []
   points = null
-  margin = {top: 60, right: 20, bottom: 40, left: 220}
+  margin = {top: 60, right: 90, bottom: 40, left: 220}
   xScale = d3.scale.linear().domain([0,10]).range([0,width])
   yScale = d3.scale.linear().domain([0,10]).range([0,height])
   xValue = (d) -> parseFloat(d.play_ratio)
@@ -81,12 +81,48 @@ DiffPlot = () ->
       update()
 
   showDiff = (d) ->
-    d3.selectAll('.match').filter((m) -> m.leader == d)
-      .style('opacity', 1)
+    match_set = d3.selectAll('.match_set').filter((m) -> m.leader == d)
+    
+    match_set.select(".match").style('opacity', 1)
+
+    ratio = 0
+    ratio_pos = 0
+    match_set.each (m) ->
+      ratio = m.leader.play_ratio - m.follower.play_ratio
+      ratio_pos = (ratio  / 2) + m.follower.play_ratio
+
+    match_set.append("text")
+      .attr("x", () -> xScale(ratio_pos))
+      .attr("y", () -> yScale(yValue(d)))
+      .attr("dy", 16)
+      .attr('text-anchor', 'middle')
+      .attr('class', 'diff_ratio')
+      .text("+#{roundNumber(ratio, 2)}x")
+
+    d3.selectAll(".song_title").filter( (s) -> s == d)
+      .text((d) -> d.meta.title + " by " + d.meta.artist_name)
+
+    # match_set.select(".follower").classed("tipper", true)
+
+    # $('svg .tipper').tipsy({
+    #   gravity:'e'
+    #   manual:true
+    #   html:true
+    #   title: () ->
+    #     d = this.__data__
+    #     "<strong>#{d.meta.title}</strong> <i>by</i> #{d.meta.artist_name}"
+    # }).tipsy("show")
+    
 
   hideDiff = (d) ->
     d3.selectAll('.match')
       .style('opacity', 0)
+
+    d3.selectAll('.diff_ratio').remove()
+
+    d3.selectAll(".song_title")
+      .text((d) -> d.meta.title)
+
 
   update = () ->
     points.append("text")
@@ -101,6 +137,7 @@ DiffPlot = () ->
       .attr('y1', -43)
       .attr('x2', 240)
       .attr('y2', -43)
+      .attr("marker-end", "url(#triangle)")
 
     points.selectAll("x_title")
       .data([2,3,4,5,6,7,8,9,10])
@@ -132,7 +169,8 @@ DiffPlot = () ->
       .attr('x1', -110)
       .attr('y1', 35)
       .attr('x2', -110)
-      .attr('y2', 100)
+      .attr('y2', 85)
+      .attr("marker-end", "url(#triangle)")
 
     points.append("line")
       .attr("class", "y axis")
@@ -171,7 +209,7 @@ DiffPlot = () ->
       .attr("r", (d) -> if d.leader then 8 else 5)
       .attr("fill", (d) -> if d.leader then "#8F2C1B" else "#777")
 
-    m = points.selectAll(".match")
+    m = points.selectAll(".match_set")
       .data(matches).enter()
       .append("g")
       .attr("class", "match_set")
@@ -227,7 +265,7 @@ DiffPlot = () ->
 
 
     $('svg .point').tipsy({
-      gravity:'w'
+      gravity:'e'
       html:true
       title: () ->
         d = this.__data__

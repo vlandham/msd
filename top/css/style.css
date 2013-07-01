@@ -1,3 +1,11 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.red {
+  color: #8F2C1B;
+  font-weight: 700;
+}
 
 .axis {
   fill: none;
@@ -23,6 +31,11 @@
   fill: none;
   /* stroke: #888; */
   stroke-width: 1.5px;
-  stroke-dasharray: 4,6;
+  stroke-dasharray: 2,2;
   stroke: #8F2C1B;
+}
+
+.diff_ratio {
+  font-weight: 700; 
+  font-size: 16px;
 }
