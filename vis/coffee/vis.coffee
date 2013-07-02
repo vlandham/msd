@@ -781,7 +781,7 @@ $ ->
 
   user_id = decodeURIComponent(location.hash.substring(1)).trim()
   if !user_id
-    user_id = 4
+    user_id = 10
 
   top_plot = TagCircle()
   dot_plot = DotPlot()
